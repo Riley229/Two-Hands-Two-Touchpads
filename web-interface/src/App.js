@@ -2,9 +2,13 @@ import React from "react";
 import Keyboard from "./components/Keyboard";
 
 class App extends React.Component {
-  state = {
-    input: "",
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      input: "",
+    };
+  }
 
   render() {
     const { input } = this.state;
