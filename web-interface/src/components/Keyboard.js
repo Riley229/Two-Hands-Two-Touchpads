@@ -1,8 +1,10 @@
 import React from "react";
+import { KeyboardBackspace, ArrowUpward, KeyboardTab, KeyboardArrowLeft, KeyboardArrowRight, SubdirectoryArrowLeft } from "@mui/icons-material";
+
+import "./Keyboard.css"
+
 import KeyboardButton from "./KeyboardButton";
 import keyboardLayout from "../data/KeyboardLayout";
-import BackspaceIcon from "./icons/BackspaceIcon";
-import ShiftIcon from "./icons/ShiftIcon";
 
 class Keyboard extends React.Component {
   constructor(props) {
@@ -26,20 +28,66 @@ class Keyboard extends React.Component {
     const keys = keyboardLayout;
 
     return (
-      <div>
-        {keys.map((row, i) =>
-          <div>
+      <div className="keyboard">
+        {keys.map((row, i) => {
+          var shiftRow = false;
+          if (row.includes("*sh"))
+            shiftRow = true;
+
+          return <div className={`keyboard-row ${shiftRow ? 'shift-row' : ''}`}>
             {row.map((button, j) => {
               switch (button.toLowerCase()) {
                 case "*bs":
                   return <KeyboardButton 
-                    value={<BackspaceIcon />}
+                    value={<KeyboardBackspace />}
                     onClick={() => true}
+                    classes="fill-key"
                   />;
                 case "*sh":
                   return <KeyboardButton 
-                    value={<ShiftIcon />}
+                    value={<ArrowUpward />}
                     onClick={() => this.onShiftClick()}
+                    classes="fill-key"
+                  />;
+                case "*sp":
+                  return <KeyboardButton
+                    value=""
+                    onClick={() => true}
+                    classes="fill-key"
+                  />;
+                case "*tb":
+                  return <KeyboardButton 
+                    value={<KeyboardTab />}
+                    onClick={() => true}
+                    classes="fill-key"
+                  />;
+                case "*cps":
+                  return <KeyboardButton 
+                    value="CAPS"
+                    onClick={() => true}
+                    classes="fill-key"
+                  />;
+                case "*e":
+                  return <KeyboardButton 
+                    value={<SubdirectoryArrowLeft />}
+                    onClick={() => true}
+                    classes="fill-key"
+                  />;
+                case "\\":
+                  return <KeyboardButton
+                    value="\"
+                    onClick={() => true}
+                    classes="fill-key"
+                  />;
+                case "*l":
+                  return <KeyboardButton 
+                    value={<KeyboardArrowLeft />}
+                    onClick={() => true}
+                  />;
+                case "*r":
+                  return <KeyboardButton 
+                    value={<KeyboardArrowRight />}
+                    onClick={() => true}
                   />;
                 default:
                   const value = uppercase ? button.toUpperCase() : button.toLowerCase();
@@ -50,7 +98,7 @@ class Keyboard extends React.Component {
               }
             })}
           </div>
-        )}
+        })}
       </div>
     );
   }

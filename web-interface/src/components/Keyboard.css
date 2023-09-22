@@ -1,0 +1,37 @@
+.keyboard {
+  width: 100%;
+  max-width: 1030px;
+  margin: 0 auto;
+  padding: 3px;
+  background: #dadada;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.5);
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+
+  &.shift-row {
+    justify-content: left;
+  }
+}
+
+.keyboard-button {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-basis: 70px;
+  font-size: 18px;
+  height: 55px;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+  border: 1px solid #cecece;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+  margin: 1.5px;
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.2);
+
+  &.fill-key {
+    flex-grow: 1;
+  }
+}
