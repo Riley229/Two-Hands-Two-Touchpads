@@ -35,11 +35,23 @@
     flex-grow: 1;
   }
 
+  &.space-bar {
+    flex-grow: 5;
+  }
+
   &.control-key {
     background-color: #e4e4e4;
   }
 }
 
+.shift-icon {
+  rotate: 270deg;
+}
+
+.left-arrow-icon {
+  rotate: 180deg;
+}
+
 .simplified-keyboard .keyboard-button {
-  flex-basis: 80px;
+  flex-basis: 90px;
 }
