@@ -1,18 +1,40 @@
 import React from "react";
 import Keyboard from "./components/Keyboard";
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:10942', {
+  extraHeaders: {
+    ['client-type']: 'web-interface',
+  },
+});
 
 class App extends React.Component {
+  static port = 8093;
+
   constructor(props) {
     super(props);
+
+    // bind events to this instance
     this.moveCursor = this.moveCursor.bind(this);
     this.placeCharacter = this.placeCharacter.bind(this);
     this.removeCharacter = this.removeCharacter.bind(this);
     this.enterPressed = this.enterPressed.bind(this);
 
+    // set initial state
     this.state = {
       input: "",
       cursorIndex: 0,
     };
+
+    // setup webhook listeners
+    let self = this;
+    socket.on('cursor-move', function(left, x, y) {
+      // TODO: implement
+    });
+
+    socket.on('click', function(left) {
+      // TODO: implement
+    });
   }
 
   moveCursor(left) {

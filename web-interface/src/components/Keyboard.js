@@ -12,6 +12,8 @@ class Keyboard extends React.Component {
 
   constructor(props) {
     super(props);
+
+    // bind events to this instance
     this.onCapsLock = this.onCapsLock.bind(this);
     this.onShiftClick = this.onShiftClick.bind(this);
     this.onBackspace = this.onBackspace.bind(this);
@@ -19,6 +21,7 @@ class Keyboard extends React.Component {
     this.onNavigate = this.onNavigate.bind(this);
     this.onKeyClick = this.onKeyClick.bind(this);
 
+    // set initial state
     this.state = {
       uppercase: false,
       capsLock: false,
@@ -69,7 +72,7 @@ class Keyboard extends React.Component {
 
     inputHandler.placeCharacter(key);
 
-    if (uppercase) 
+    if (uppercase)
       this.setState({
         uppercase: false,
       });
@@ -90,13 +93,13 @@ class Keyboard extends React.Component {
             {row.map((button, j) => {
               switch (button.toLowerCase()) {
                 case "*bs":
-                  return <KeyboardButton 
+                  return <KeyboardButton
                     value={<Backspace />}
                     onClick={this.onBackspace}
                     classes="stretch-key control-key"
                   />;
                 case "*sh":
-                  return <KeyboardButton 
+                  return <KeyboardButton
                     value={<Forward className="shift-icon" />}
                     onClick={this.onShiftClick}
                     classes="stretch-key control-key"
@@ -108,19 +111,19 @@ class Keyboard extends React.Component {
                     classes="space-bar"
                   />;
                 case "*tb":
-                  return <KeyboardButton 
+                  return <KeyboardButton
                     value={<KeyboardTab />}
                     onClick={() => this.onKeyClick("\t")}
                     classes="stretch-key control-key"
                   />;
                 case "*cps":
-                  return <KeyboardButton 
+                  return <KeyboardButton
                     value={<KeyboardCapslock />}
                     onClick={this.onCapsLock}
                     classes="stretch-key control-key"
                   />;
                 case "*e":
-                  return <KeyboardButton 
+                  return <KeyboardButton
                     value={<KeyboardReturn />}
                     onClick={this.onEnter}
                     classes="stretch-key control-key"
@@ -132,13 +135,13 @@ class Keyboard extends React.Component {
                     classes="stretch-key"
                   />;
                 case "*l":
-                  return <KeyboardButton 
+                  return <KeyboardButton
                     value={<PlayArrow className="left-arrow-icon" />}
                     onClick={() => this.onNavigate(true)}
                     classes="control-key"
                   />;
                 case "*r":
-                  return <KeyboardButton 
+                  return <KeyboardButton
                     value={<PlayArrow className="right-arrow-icon" />}
                     onClick={() => this.onNavigate(false)}
                     classes="control-key"
