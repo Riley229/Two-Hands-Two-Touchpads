@@ -42,6 +42,14 @@
   &.control-key {
     background-color: #e4e4e4;
   }
+
+  &.left-hover {
+    background-color: #63b324;
+  }
+
+  &.right-hover {
+    background-color: #2483b3;
+  }
 }
 
 .shift-icon {
