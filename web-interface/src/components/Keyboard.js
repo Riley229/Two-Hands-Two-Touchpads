@@ -80,6 +80,29 @@ class Keyboard extends React.Component {
       }
     });
 
+    socket.on('cursor-set', function (left, posX, posY) {
+      const newX = Math.min(100, Math.max(0, posX));
+      const newY = Math.min(100, Math.max(0, posY));
+
+      if (left) {
+        self.setState({
+          leftCursor: {
+            x: newX,
+            y: newY,
+            click: false,
+          },
+        });
+      } else {
+        self.setState({
+          rightCursor: {
+            x: newX,
+            y: newY,
+            click: false,
+          },
+        });
+      }
+    });
+
     socket.on('click', function (left) {
       if (left) {
         const { x, y } = self.state.leftCursor;
