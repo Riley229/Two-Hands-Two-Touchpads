@@ -8,7 +8,7 @@ The code for this project is split into 3 directories:
 - `web-interface`: contains the keyboard interface and logic for mapping positional information onto the keyboard.
 - `server`: contains logic for handling remote and web interface connections, and passes remote information to the web interface.
 
-To run the project, first start the server, then start the web interface on the same device. The mobile remote will be executed from a mobile device after the server and web interface are setup and communicating.
+To run the project, first start the server, then start the web interface on the same device. The mobile remote will be run on a mobile device after the server and web interface are setup.
 
 ### Mobile Remote
 
