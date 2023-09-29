@@ -1,19 +1,11 @@
 import React from "react";
 import { Forward, Backspace, KeyboardTab, PlayArrow, KeyboardReturn, KeyboardCapslock } from "@mui/icons-material";
-import { io } from 'socket.io-client';
 
 import "./Keyboard.css"
 
 import KeyboardButton from "./KeyboardButton";
 import SimplifiedLayout from "../data/SimplifiedLayout";
 import StandardLayout from "../data/StandardLayout";
-
-// setup websocket
-const socket = io('http://localhost:10942', {
-  extraHeaders: {
-    ['client-type']: 'web-interface',
-  },
-});
 
 class Keyboard extends React.Component {
   static simplifiedLayout = true;
@@ -51,6 +43,7 @@ class Keyboard extends React.Component {
     };
 
     // setup webhook listeners
+    let socket = this.props.socket;
     let self = this;
     socket.on('cursor-move', function (left, deltaX, deltaY) {
       if (left) {
@@ -270,11 +263,13 @@ class Keyboard extends React.Component {
 
               switch (button.toLowerCase()) {
                 case "*bs":
+                  // @ts-ignore
                   buttonValue = <Backspace />;
                   classes="stretch-key control-key";
                   handleClick = this.onBackspace;
                   break;
                 case "*sh":
+                  // @ts-ignore
                   buttonValue = <Forward className="shift-icon" />;
                   classes="stretch-key control-key";
                   handleClick = this.onShiftClick;
@@ -284,16 +279,19 @@ class Keyboard extends React.Component {
                   classes="space-bar";
                   break;
                 case "*tb":
+                  // @ts-ignore
                   buttonValue = <KeyboardTab />;
                   classes="stretch-key control-key";
                   handleClick = () => this.onKeyClick("\t");
                   break;
                 case "*cps":
+                  // @ts-ignore
                   buttonValue = <KeyboardCapslock />;
                   classes="stretch-key control-key";
                   handleClick = this.onCapsLock;
                   break;
                 case "*e":
+                  // @ts-ignore
                   buttonValue = <KeyboardReturn />;
                   classes="stretch-key control-key";
                   handleClick = this.onEnter;
@@ -303,11 +301,13 @@ class Keyboard extends React.Component {
                   classes="stretch-key";
                   break;
                 case "*l":
+                  // @ts-ignore
                   buttonValue = <PlayArrow className="left-arrow-icon" />;
                   classes="control-key";
                   handleClick = () => this.onNavigate(true);
                   break;
                 case "*r":
+                  // @ts-ignore
                   buttonValue = <PlayArrow className="right-arrow-icon" />;
                   classes="control-key";
                   handleClick = () => this.onNavigate(false);

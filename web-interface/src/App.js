@@ -1,5 +1,13 @@
 import React from "react";
 import Keyboard from "./components/Keyboard";
+import { io } from 'socket.io-client';
+
+// setup websocket
+const socket = io('http://localhost:10942', {
+  extraHeaders: {
+    'client-type': 'web-interface',
+  },
+});
 
 class App extends React.Component {
   constructor(props) {
@@ -10,12 +18,24 @@ class App extends React.Component {
     this.placeCharacter = this.placeCharacter.bind(this);
     this.removeCharacter = this.removeCharacter.bind(this);
     this.enterPressed = this.enterPressed.bind(this);
+    this.toggleMode = this.toggleMode.bind(this);
 
     // set initial state
     this.state = {
       input: "",
       cursorIndex: 0,
+      serverAddress: "",
+      singleInput: true,
     };
+
+    // setup webhook listeners
+    let self = this;
+    socket.on('server-ip', function (address) {
+      console.log(address);
+      self.setState({
+        serverAddress: address,
+      });
+    });
   }
 
   moveCursor(left) {
@@ -57,17 +77,30 @@ class App extends React.Component {
     // TODO: implement
   }
 
+  toggleMode() {
+    this.setState({
+      singleInput: !this.state.singleInput,
+    });
+
+    socket.emit('set-mode', this.state.singleInput);
+  }
+
   render() {
-    const { input } = this.state;
+    const { input, serverAddress } = this.state;
 
     return (
       <div>
         <div>
+          <button onClick={this.toggleMode} >
+            Toggle Input Mode
+          </button>
+          <text>{serverAddress}</text>
           <textarea 
             value={input}
           />
         </div>
         <Keyboard 
+          socket={socket}
           inputHandler={this} 
         />
       </div>
