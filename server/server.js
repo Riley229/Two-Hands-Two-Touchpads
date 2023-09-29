@@ -37,12 +37,19 @@ io.on('connection', function(socket) {
     }
   });
 
-  // listen to cursor move events
+  // listen to cursor events
   socket.on('cursor-move', function(left, x, y) {
     if (webInterface === null)
       return;
 
     webInterface.emit('cursor-move', left, x, y);
+  });
+
+  socket.on('cursor-set', function(left, x, y) {
+    if (webInterface === null)
+      return;
+
+    webInterface.emit('cursor-set', left, x, y);
   });
 
   socket.on('click', function(left) {
