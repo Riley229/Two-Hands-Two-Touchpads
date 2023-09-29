@@ -2,17 +2,35 @@ import * as ScreenOrientation from "expo-screen-orientation";
 import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { io } from "socket.io-client";
 import TouchPad from "./components/TouchPad";
 
 import { LogBox } from "react-native";
 LogBox.ignoreLogs(["new NativeEventEmitter()"]); // Ignore log notification by message
 
 export default function App() {
+  const socket = io("localhost:10942", {
+    extraHeaders: {
+      ["client-type"]: "remote",
+    },
+    transports: ["websocket"],
+  });
+
+  socket.on("connect_error", (error) => {
+    console.error("WebSocket connection error:", error.message);
+  });
+
   const [touchMode, setTouchMode] = useState(true);
 
   const onPanLeft = (event) => {
     console.log(
       "left",
+      event.nativeEvent.absoluteX,
+      event.nativeEvent.absoluteY
+    );
+    socket.emit(
+      "cursor-move",
+      true,
       event.nativeEvent.absoluteX,
       event.nativeEvent.absoluteY
     );
