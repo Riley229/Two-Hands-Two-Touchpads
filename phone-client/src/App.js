@@ -1,13 +1,7 @@
 import * as ScreenOrientation from "expo-screen-orientation";
 import React, { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  useWindowDimensions,
-} from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
+import { GestureHandlerRootView, State } from "react-native-gesture-handler";
 import { io } from "socket.io-client";
 import TouchPad from "./components/TouchPad";
 
@@ -58,8 +52,21 @@ export default function App() {
     );
   };
 
-  const toggleTouchMode = async () => {
-    setTouchMode((prev) => !prev);
+  const onReleaseLeft = (event) => {
+    if (event.nativeEvent.state === State.END) {
+      console.log("click");
+      socket.emit("click", true);
+    }
+  };
+
+  const onReleaseRight = (event) => {
+    if (event.nativeEvent.state === State.END) {
+      socket.emit("click", false);
+    }
+  };
+
+  socket.on("set-mode", async function (single) {
+    setTouchMode(single);
     if (touchMode) {
       await ScreenOrientation.lockAsync(
         ScreenOrientation.OrientationLock.LANDSCAPE
@@ -69,7 +76,8 @@ export default function App() {
         ScreenOrientation.OrientationLock.PORTRAIT
       );
     }
-  };
+  });
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       {touchMode ? (
@@ -77,6 +85,7 @@ export default function App() {
           style={styles.touchPadSingle}
           text={"CENTER"}
           onPan={onPanLeft}
+          onRelease={onReleaseLeft}
         />
       ) : (
         <View style={{ flex: 1, flexDirection: "row" }}>
@@ -84,20 +93,16 @@ export default function App() {
             style={styles.touchPadLeft}
             text={"LEFT"}
             onPan={onPanLeft}
+            onRelease={onReleaseLeft}
           />
           <TouchPad
             style={styles.touchPadRight}
             text={"RIGHT"}
             onPan={onPanRight}
+            onRelease={onReleaseRight}
           />
         </View>
       )}
-      <TouchableOpacity
-        style={{ alignItems: "center" }}
-        onPress={toggleTouchMode}
-      >
-        <Text>TOGGLE TOUCHPAD</Text>
-      </TouchableOpacity>
     </GestureHandlerRootView>
   );
 }
@@ -107,7 +112,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "lightgray",
+    backgroundColor: "lightcyan",
   },
   touchPadLeft: {
     flex: 1,
