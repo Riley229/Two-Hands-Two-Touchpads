@@ -24,31 +24,48 @@ export default function App() {
   const { height, width } = useWindowDimensions();
   const [touchMode, setTouchMode] = useState(true);
 
-  const onPanLeft = (event) => {
+  const horizontalMultiplier = 175;
+  const verticalMultiplier = 125;
+
+  const onPanSingle = (event) => {
     console.log(
-      "left",
-      (event.nativeEvent.absoluteX / width) * 100,
-      (event.nativeEvent.absoluteY / height) * 100
+      "single",
+      (event.nativeEvent.translationX / width) * 100,
+      (event.nativeEvent.translationY / height) * 100
     );
     socket.emit(
       "cursor-set",
       true,
-      (event.nativeEvent.absoluteX / width) * 100,
-      (event.nativeEvent.absoluteY / height) * 100
+      50 + (event.nativeEvent.translationX / width) * horizontalMultiplier,
+      50 + (event.nativeEvent.translationY / height) * verticalMultiplier
+    );
+  };
+
+  const onPanLeft = (event) => {
+    console.log(
+      "left",
+      (event.nativeEvent.translationX / width) * 100,
+      (event.nativeEvent.translationY / height) * 100
+    );
+    socket.emit(
+      "cursor-set",
+      true,
+      33 + (event.nativeEvent.translationX / width) * horizontalMultiplier,
+      50 + (event.nativeEvent.translationY / height) * verticalMultiplier
     );
   };
 
   const onPanRight = (event) => {
     console.log(
       "right",
-      (event.nativeEvent.absoluteX / width) * 100,
-      (event.nativeEvent.absoluteY / height) * 100
+      (event.nativeEvent.translationX / width) * 100,
+      (event.nativeEvent.translationY / height) * 100
     );
     socket.emit(
       "cursor-set",
       false,
-      (event.nativeEvent.absoluteX / width) * 100,
-      (event.nativeEvent.absoluteY / height) * 100
+      66 + (event.nativeEvent.translationX / width) * horizontalMultiplier,
+      50 + (event.nativeEvent.translationY / height) * verticalMultiplier
     );
   };
 
@@ -85,7 +102,7 @@ export default function App() {
         <TouchPad
           style={styles.touchPadSingle}
           text={"CENTER"}
-          onPan={onPanLeft}
+          onPan={onPanSingle}
           onRelease={onReleaseLeft}
         />
       ) : (
