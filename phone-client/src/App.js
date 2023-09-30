@@ -1,31 +1,38 @@
 import * as ScreenOrientation from "expo-screen-orientation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View, useWindowDimensions } from "react-native";
 import { GestureHandlerRootView, State } from "react-native-gesture-handler";
 import { io } from "socket.io-client";
 import TouchPad from "./components/TouchPad";
 
 import { LogBox } from "react-native";
+import ServerAddressInput from "./components/ServerAddressInput";
 LogBox.ignoreLogs(["new NativeEventEmitter()"]); // Ignore log notification by message
-
-const serverAddress = "192.168.137.215";
-const socket = io("http://" + serverAddress + ":10942", {
-  extraHeaders: {
-    ["client-type"]: "remote",
-  },
-  transports: ["websocket"],
-});
-
-socket.on("connect_error", (error) => {
-  console.error("WebSocket connection error:", error.message);
-});
 
 export default function App() {
   const { height, width } = useWindowDimensions();
   const [touchMode, setTouchMode] = useState(true);
+  const [serverAddress, setServerAddress] = useState("");
+  const [socket, setSocket] = useState(null);
 
   const horizontalMultiplier = 175;
   const verticalMultiplier = 125;
+
+  useEffect(() => {
+    if (socket) {
+      socket.close;
+    }
+    const newSocket = io("http://" + serverAddress + ":10942", {
+      extraHeaders: {
+        ["client-type"]: "remote",
+      },
+      transports: ["websocket"],
+    });
+    newSocket.on("set-mode", async function (single) {
+      setTouchMode(single);
+    });
+    setSocket(newSocket);
+  }, [serverAddress]);
 
   const onPanSingle = (event) => {
     console.log(
@@ -82,45 +89,44 @@ export default function App() {
     }
   };
 
-  socket.on("set-mode", async function (single) {
-    setTouchMode(single);
-  });
-
   if (touchMode) {
-    ScreenOrientation.lockAsync(
-      ScreenOrientation.OrientationLock.PORTRAIT
-    );
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
   } else {
-    ScreenOrientation.lockAsync(
-      ScreenOrientation.OrientationLock.LANDSCAPE
-    );
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
   }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      {touchMode ? (
-        <TouchPad
-          style={styles.touchPadSingle}
-          text={"CENTER"}
-          onPan={onPanSingle}
-          onRelease={onReleaseLeft}
+      {!serverAddress && (
+        <ServerAddressInput
+          isVisible={!serverAddress}
+          onSave={(address) => setServerAddress(address)}
         />
-      ) : (
-        <View style={{ flex: 1, flexDirection: "row" }}>
+      )}
+      {socket &&
+        (touchMode ? (
           <TouchPad
-            style={styles.touchPadLeft}
-            text={"LEFT"}
-            onPan={onPanLeft}
+            style={styles.touchPadSingle}
+            text={"CENTER"}
+            onPan={onPanSingle}
             onRelease={onReleaseLeft}
           />
-          <TouchPad
-            style={styles.touchPadRight}
-            text={"RIGHT"}
-            onPan={onPanRight}
-            onRelease={onReleaseRight}
-          />
-        </View>
-      )}
+        ) : (
+          <View style={{ flex: 1, flexDirection: "row" }}>
+            <TouchPad
+              style={styles.touchPadLeft}
+              text={"LEFT"}
+              onPan={onPanLeft}
+              onRelease={onReleaseLeft}
+            />
+            <TouchPad
+              style={styles.touchPadRight}
+              text={"RIGHT"}
+              onPan={onPanRight}
+              onRelease={onReleaseRight}
+            />
+          </View>
+        ))}
     </GestureHandlerRootView>
   );
 }
