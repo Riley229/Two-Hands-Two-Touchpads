@@ -1,5 +1,6 @@
-import React from "react";
-import Keyboard from "./components/Keyboard";
+import React from 'react';
+import Popup from 'reactjs-popup';
+import Keyboard from './components/Keyboard';
 import { io } from 'socket.io-client';
 
 // setup websocket
@@ -22,18 +23,23 @@ class App extends React.Component {
 
     // set initial state
     this.state = {
-      input: "",
+      input: '',
       cursorIndex: 0,
-      serverAddress: "",
-      singleInput: true,
+      displayAddress: null,
+      singleInputMode: true,
     };
 
     // setup webhook listeners
     let self = this;
-    socket.on('server-ip', function (address) {
-      console.log(address);
+    socket.on('display-ip', function (address) {
       self.setState({
-        serverAddress: address,
+        displayAddress: address,
+      });
+    });
+
+    socket.on('set-mode', function(singleInput) {
+      self.setState({
+        singleInputMode: singleInput,
       });
     });
   }
@@ -78,31 +84,39 @@ class App extends React.Component {
   }
 
   toggleMode() {
-    this.setState({
-      singleInput: !this.state.singleInput,
-    });
-
-    socket.emit('set-mode', this.state.singleInput);
+    const { singleInputMode } = this.state;
+    socket.emit('set-mode', !singleInputMode);
   }
 
   render() {
-    const { input, serverAddress } = this.state;
+    const { input, displayAddress, singleInputMode } = this.state;
 
     return (
-      <div>
+      <div className="main">
         <div>
-          <button onClick={this.toggleMode} >
-            Toggle Input Mode
-          </button>
-          <text>{serverAddress}</text>
           <textarea 
+            className="inputArea"
             value={input}
           />
         </div>
         <Keyboard 
           socket={socket}
-          inputHandler={this} 
+          singleInputMode={singleInputMode}
+          inputHandler={this}
         />
+
+        <Popup 
+          open={displayAddress != null} 
+          closeOnDocumentClick={false}
+        >
+          <div>
+            <h5>Connect a mobile device to continue</h5>
+            <h3>{displayAddress}</h3>
+          </div>
+        </Popup>
+        <button onClick={this.toggleMode} >
+            Toggle Input Mode
+          </button>
       </div>
     );
   }

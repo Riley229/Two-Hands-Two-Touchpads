@@ -43,7 +43,7 @@ class Keyboard extends React.Component {
     };
 
     // setup webhook listeners
-    let socket = this.props.socket;
+    const { socket } = this.props;
     let self = this;
     socket.on('cursor-move', function (left, deltaX, deltaY) {
       if (left) {
@@ -97,6 +97,7 @@ class Keyboard extends React.Component {
     });
 
     socket.on('click', function (left) {
+      console.log(left);
       if (left) {
         const { x, y } = self.state.leftCursor;
 
@@ -218,6 +219,7 @@ class Keyboard extends React.Component {
 
   render() {
     const { uppercase, capsLock, rightCursor, leftCursor } = this.state;
+    const { singleInputMode } = this.props;
     const keys = this.getLayout();
 
     // calculate row information to determine currently selected rows
@@ -246,7 +248,7 @@ class Keyboard extends React.Component {
               var selectedClass = "";
               if (i === leftRow && j === leftColumn)
                 selectedClass = "left-hover";
-              if (i === rightRow && j === rightColumn)
+              if (i === rightRow && j === rightColumn && !singleInputMode)
                 selectedClass = "right-hover"
 
               // determine if key is being clicked
@@ -315,6 +317,9 @@ class Keyboard extends React.Component {
                 default:
                   buttonValue = (uppercase || capsLock) ? button.toUpperCase() : button.toLowerCase();
               }
+
+              if (clicking)
+                handleClick(buttonValue);
 
               return <KeyboardButton
                 value={buttonValue}

@@ -12,7 +12,11 @@ To run the project, first start the server, then start the web interface on the 
 
 ### Mobile Remote
 
+The following command is used to start the mobile connection using expo. Note, you must be on a the same local network and not a UTD network.
 
+```
+npx expo start
+```
 
 ### Web Interface
 

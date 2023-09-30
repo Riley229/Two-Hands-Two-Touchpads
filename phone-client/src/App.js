@@ -8,7 +8,7 @@ import TouchPad from "./components/TouchPad";
 import { LogBox } from "react-native";
 LogBox.ignoreLogs(["new NativeEventEmitter()"]); // Ignore log notification by message
 
-const serverAddress = "192.168.119.124";
+const serverAddress = "192.168.137.215";
 const socket = io("http://" + serverAddress + ":10942", {
   extraHeaders: {
     ["client-type"]: "remote",
@@ -67,16 +67,17 @@ export default function App() {
 
   socket.on("set-mode", async function (single) {
     setTouchMode(single);
-    if (touchMode) {
-      await ScreenOrientation.lockAsync(
-        ScreenOrientation.OrientationLock.LANDSCAPE
-      );
-    } else {
-      await ScreenOrientation.lockAsync(
-        ScreenOrientation.OrientationLock.PORTRAIT
-      );
-    }
   });
+
+  if (touchMode) {
+    ScreenOrientation.lockAsync(
+      ScreenOrientation.OrientationLock.PORTRAIT
+    );
+  } else {
+    ScreenOrientation.lockAsync(
+      ScreenOrientation.OrientationLock.LANDSCAPE
+    );
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
