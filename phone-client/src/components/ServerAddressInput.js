@@ -16,7 +16,7 @@ export default function ServerAddressInput({ isVisible, onSave }) {
         onChangeText={setAddress}
         value={address}
       />
-      <Dialog.Button label="Save" onPress={handleSave} />
+      <Dialog.Button label="Connect" onPress={handleSave} />
     </Dialog.Container>
   );
 }

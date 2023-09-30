@@ -16,7 +16,7 @@ export default function App() {
   const [socket, setSocket] = useState(null);
 
   const horizontalMultiplier = 175;
-  const verticalMultiplier = 125;
+  const verticalMultiplier = 150;
 
   useEffect(() => {
     if (socket) {
@@ -34,51 +34,34 @@ export default function App() {
     setSocket(newSocket);
   }, [serverAddress]);
 
-  const onPanSingle = (event) => {
+  const onPan = (event, left, offsetx, offsety) => {
     console.log(
-      "single",
-      (event.nativeEvent.translationX / width) * 100,
-      (event.nativeEvent.translationY / height) * 100
+      left,
+      (event.nativeEvent.x / width) * 100,
+      (event.nativeEvent.y / height) * 100
     );
     socket.emit(
       "cursor-set",
-      true,
-      50 + (event.nativeEvent.translationX / width) * horizontalMultiplier,
-      50 + (event.nativeEvent.translationY / height) * verticalMultiplier
+      left,
+      (event.nativeEvent.x / width) * horizontalMultiplier + offsetx,
+      (event.nativeEvent.y / height) * verticalMultiplier + offsety
     );
+  };
+
+  const onPanSingle = (event) => {
+    onPan(event, true, -40, -20);
   };
 
   const onPanLeft = (event) => {
-    console.log(
-      "left",
-      (event.nativeEvent.translationX / width) * 100,
-      (event.nativeEvent.translationY / height) * 100
-    );
-    socket.emit(
-      "cursor-set",
-      true,
-      33 + (event.nativeEvent.translationX / width) * horizontalMultiplier,
-      50 + (event.nativeEvent.translationY / height) * verticalMultiplier
-    );
+    onPan(event, true, -10, -20);
   };
 
   const onPanRight = (event) => {
-    console.log(
-      "right",
-      (event.nativeEvent.translationX / width) * 100,
-      (event.nativeEvent.translationY / height) * 100
-    );
-    socket.emit(
-      "cursor-set",
-      false,
-      66 + (event.nativeEvent.translationX / width) * horizontalMultiplier,
-      50 + (event.nativeEvent.translationY / height) * verticalMultiplier
-    );
+    onPan(event, false, 23, -20);
   };
 
   const onReleaseLeft = (event) => {
     if (event.nativeEvent.state === State.END) {
-      console.log("click");
       socket.emit("click", true);
     }
   };
