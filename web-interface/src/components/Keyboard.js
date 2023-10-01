@@ -1,5 +1,5 @@
 import React from "react";
-import { Forward, Backspace, KeyboardTab, PlayArrow, KeyboardReturn, KeyboardCapslock } from "@mui/icons-material";
+import { Forward, Backspace, KeyboardTab, PlayArrow, KeyboardCapslock, Search } from "@mui/icons-material";
 
 import "./Keyboard.css"
 
@@ -182,7 +182,7 @@ class Keyboard extends React.Component {
 
     // calculate the increments for stretch keys
     const stretchWidthSum = 100 - (normalKeys.length * keyWidth);
-    const stretchWidthIncrement = stretchWidthSum / ((spaceKeys.length * 5) + stretchKeys.length);
+    const stretchWidthIncrement = stretchWidthSum / ((spaceKeys.length * 3) + stretchKeys.length);
 
     // calculate key widths
     var widthSum = 0;
@@ -194,7 +194,7 @@ class Keyboard extends React.Component {
       } else if (stretchKeys.includes(value)) {
         width = stretchWidthIncrement;
       } else if (spaceKeys.includes(value)) {
-        width = stretchWidthIncrement * 5;
+        width = stretchWidthIncrement * 3;
       }
 
       widthSum += width;
@@ -311,7 +311,7 @@ class Keyboard extends React.Component {
                   break;
                 case "*e":
                   // @ts-ignore
-                  buttonValue = <KeyboardReturn />;
+                  buttonValue = <Search />;
                   classes = "stretch-key control-key";
                   handleClick = this.onEnter;
                   break;

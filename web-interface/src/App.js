@@ -1,5 +1,7 @@
 import React from 'react';
 import Popup from 'reactjs-popup';
+import Switch from 'react-switch';
+import { Settings } from "@mui/icons-material";
 import Keyboard from './components/Keyboard';
 import { io } from 'socket.io-client';
 
@@ -20,6 +22,8 @@ class App extends React.Component {
     this.removeCharacter = this.removeCharacter.bind(this);
     this.enterPressed = this.enterPressed.bind(this);
     this.toggleMode = this.toggleMode.bind(this);
+    this.toggleTextSuggestions = this.toggleTextSuggestions.bind(this);
+    this.toggleMenu = this.toggleMenu.bind(this);
 
     // set initial state
     this.state = {
@@ -27,13 +31,8 @@ class App extends React.Component {
       cursorIndex: 0,
       displayAddress: null,
       singleInputMode: true,
-
-      keyboardDim: {
-        top: 0,
-        left: 0,
-        height: 0,
-        width: 0,
-      },
+      menuOpen: false,
+      textSuggestions: false,
     };
 
     // setup webhook listeners
@@ -44,7 +43,7 @@ class App extends React.Component {
       });
     });
 
-    socket.on('set-mode', function(singleInput) {
+    socket.on('set-mode', function (singleInput) {
       self.setState({
         singleInputMode: singleInput,
       });
@@ -90,47 +89,91 @@ class App extends React.Component {
     // TODO: implement
   }
 
-  toggleMode() {
-    const { singleInputMode } = this.state;
-    socket.emit('set-mode', !singleInputMode);
+  toggleMode(checked) {
+    socket.emit('set-mode', !checked);
+  }
+
+  toggleTextSuggestions(checked) {
+    this.setState({
+      textSuggestions: checked,
+    });
+  }
+
+  toggleMenu() {
+    const { menuOpen } = this.state;
+    this.setState({
+      menuOpen: !menuOpen,
+    });
   }
 
   render() {
-    const { input, displayAddress, singleInputMode, keyboardDim } = this.state;
+    const { input, displayAddress, singleInputMode, textSuggestions, menuOpen } = this.state;
 
     return (
-      <div className="main">
-        <div>
-          <div className="inputArea">
-            <text className="inputText">{input}</text>
-          </div>
-          {/* <textarea 
-            className="inputArea"
-            value={input}
-          /> */}
-        </div>
-        <Keyboard 
-          socket={socket}
-          singleInputMode={singleInputMode}
-          moveCursor={this.moveCursor}
-          placeCharacter={this.placeCharacter}
-          removeCharacter={this.removeCharacter}
-          enterPressed={this.enterPressed}
-          dimension={keyboardDim}
-        />
-
-        <Popup 
-          open={displayAddress != null} 
-          closeOnDocumentClick={false}
-        >
+      <div>
+        <div className="main">
           <div>
-            <h5>Connect a mobile device to continue</h5>
-            <h3>{displayAddress}</h3>
+            <div className="inputArea">
+              <text className="inputText">{input}</text>
+            </div>
           </div>
-        </Popup>
-        <button onClick={this.toggleMode} >
-            Toggle Input Mode
-          </button>
+          <Keyboard
+            socket={socket}
+            singleInputMode={singleInputMode}
+            textSuggestions={textSuggestions}
+            moveCursor={this.moveCursor}
+            placeCharacter={this.placeCharacter}
+            removeCharacter={this.removeCharacter}
+            enterPressed={this.enterPressed}
+          />
+
+          <Popup
+            open={displayAddress != null}
+            closeOnDocumentClick={false}
+          >
+            <div>
+              <h5>Connect a mobile device to continue</h5>
+              <h3>{displayAddress}</h3>
+            </div>
+          </Popup>
+        </div>
+
+        <button
+          className="toggle-menu"
+          onClick={this.toggleMenu}
+        >
+          <Settings />
+        </button>
+
+        {menuOpen &&
+          <div className="menu">
+            <h4>Settings</h4>
+            <div className="menu-option">
+              <Switch
+                className="menu-input"
+                height={20}
+                width={40}
+                checkedIcon={false}
+                uncheckedIcon={false}
+                checked={!singleInputMode}
+                onChange={this.toggleMode}
+              />
+              <text className="menu-label">Multi-touch Input</text>
+            </div>
+            <div className="menu-option">
+              <Switch
+                className="menu-input"
+                height={20}
+                width={40}
+                checkedIcon={false}
+                uncheckedIcon={false}
+                checked={textSuggestions}
+                onChange={this.toggleTextSuggestions}
+              />
+              <text className="menu-label">Text Suggestions</text>
+            </div>
+          </div>
+        }
       </div>
     );
   }
