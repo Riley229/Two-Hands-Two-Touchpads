@@ -15,8 +15,11 @@ export default function App() {
   const [serverAddress, setServerAddress] = useState("");
   const [socket, setSocket] = useState(null);
 
-  const horizontalMultiplier = 175;
-  const verticalMultiplier = 150;
+  const singleHorizontalMultiplier = 150;
+  const singleVerticalMultiplier = 300;
+
+  const doubleHorizontalMultiplier = 175;
+  const doubleVerticalMultipler = 200;
 
   useEffect(() => {
     if (socket) {
@@ -40,24 +43,26 @@ export default function App() {
       (event.nativeEvent.x / width) * 100,
       (event.nativeEvent.y / height) * 100
     );
+    const xMultiplier = touchMode ? singleHorizontalMultiplier : doubleHorizontalMultiplier;
+    const yMultiplier = touchMode ? singleVerticalMultiplier : doubleVerticalMultipler;
     socket.emit(
       "cursor-set",
       left,
-      (event.nativeEvent.x / width) * horizontalMultiplier + offsetx,
-      (event.nativeEvent.y / height) * verticalMultiplier + offsety
+      (event.nativeEvent.x / width) * xMultiplier + offsetx,
+      (event.nativeEvent.y / height) * yMultiplier + offsety
     );
   };
 
   const onPanSingle = (event) => {
-    onPan(event, true, -40, -20);
+    onPan(event, true, -30, -105);
   };
 
   const onPanLeft = (event) => {
-    onPan(event, true, -10, -20);
+    onPan(event, true, -10, -40);
   };
 
   const onPanRight = (event) => {
-    onPan(event, false, 23, -20);
+    onPan(event, false, 23, -40);
   };
 
   const onReleaseLeft = (event) => {

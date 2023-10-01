@@ -1,15 +1,17 @@
 .keyboard {
   width: 100%;
-  max-width: 1030px;
-  margin: 0 auto;
+  height: 290px;
+  position: relative;
   padding: 3px;
-  background: #d0d0d0;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.5);
+  background: #1B1B1B;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(50, 50, 50, 0.5);
 }
 
 .keyboard-row {
   display: flex;
   justify-content: center;
+  background-color: transparent;
 
   &.shift-row {
     justify-content: left;
@@ -24,12 +26,12 @@
   font-size: 18px;
   height: 55px;
   border-radius: 4px;
-  background-color: #f5f5f5;
-  border: 1px solid #cecece;
+  background-color: #363636;
+  border: 1px solid #101010;
   font-family: "Roboto", sans-serif;
   font-weight: 300;
   margin: 1.5px;
-  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 1px 0 rgba(50, 50, 50, 0.2);
 
   &.stretch-key {
     flex-grow: 1;
@@ -40,15 +42,15 @@
   }
 
   &.control-key {
-    background-color: #e4e4e4;
+    background-color: #2A2A2A;
   }
 
   &.left-hover {
-    background-color: #e0ffff;
+    background-color: #336565;
   }
 
   &.right-hover {
-    background-color: #ffb6c1;
+    background-color: #6c333c;
   }
 }
 
@@ -62,4 +64,24 @@
 
 .simplified-keyboard .keyboard-button {
   flex-basis: 90px;
+}
+
+svg {
+  background-color: transparent;
+}
+
+.cursor {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  outline: 8px solid rgba(0, 0, 0, 0.4);
+  position: absolute;
+
+  &.left-cursor {
+    background-color: rgba(116, 246, 246, 0.7);
+  }
+
+  &.right-cursor {
+    background-color: rgba(235, 107, 126, 0.7);
+  }
 }

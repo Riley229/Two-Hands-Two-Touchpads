@@ -79,7 +79,6 @@ function setupRemoteSocket(socket) {
   socket.on('click', function (left) {
     if (webInterface === null) return;
     webInterface.emit('click', left);
-    console.log(left);
   });
 }
 

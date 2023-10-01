@@ -97,7 +97,6 @@ class Keyboard extends React.Component {
     });
 
     socket.on('click', function (left) {
-      console.log(left);
       if (left) {
         const { x, y } = self.state.leftCursor;
 
@@ -146,25 +145,25 @@ class Keyboard extends React.Component {
   }
 
   onBackspace() {
-    const { inputHandler } = this.props;
-    inputHandler.removeCharacter();
+    const { removeCharacter } = this.props;
+    removeCharacter();
   }
 
   onEnter() {
-    const { inputHandler } = this.props;
-    inputHandler.enterPressed();
+    const { enterPressed } = this.props;
+    enterPressed();
   }
 
   onNavigate(left) {
-    const { inputHandler } = this.props;
-    inputHandler.moveCursor(left);
+    const { moveCursor } = this.props;
+    moveCursor(left);
   }
 
   onKeyClick(key) {
-    const { inputHandler } = this.props;
+    const { placeCharacter } = this.props;
     const { uppercase } = this.state;
 
-    inputHandler.placeCharacter(key);
+    placeCharacter(key);
 
     if (uppercase)
       this.setState({
@@ -183,7 +182,7 @@ class Keyboard extends React.Component {
 
     // calculate the increments for stretch keys
     const stretchWidthSum = 100 - (normalKeys.length * keyWidth);
-    const stretchWidthIncrement = stretchWidthSum / ((spaceKeys.length * 5) + stretchKeys.length); 
+    const stretchWidthIncrement = stretchWidthSum / ((spaceKeys.length * 5) + stretchKeys.length);
 
     // calculate key widths
     var widthSum = 0;
@@ -237,6 +236,24 @@ class Keyboard extends React.Component {
     // create return value
     const value = (
       <div className={`keyboard ${Keyboard.simplifiedLayout ? 'simplified-keyboard' : 'standard-keyboard'}`}>
+        <div
+          className='cursor left-cursor'
+          style={{
+            top: `calc(${leftCursor.y}% - 5px)`,
+            left: `calc(${leftCursor.x}% - 5px)`,
+          }}
+        />
+
+        {!singleInputMode &&
+          <div
+            className='cursor right-cursor'
+            style={{
+              top: `calc(${rightCursor.y}% - 5px)`,
+              left: `calc(${rightCursor.x}% - 5px)`,
+            }}
+          />
+        }
+
         {keys.map((row, i) => {
           var shiftRow = false;
           if (row.includes("*sh"))
@@ -267,51 +284,51 @@ class Keyboard extends React.Component {
                 case "*bs":
                   // @ts-ignore
                   buttonValue = <Backspace />;
-                  classes="stretch-key control-key";
+                  classes = "stretch-key control-key";
                   handleClick = this.onBackspace;
                   break;
                 case "*sh":
                   // @ts-ignore
                   buttonValue = <Forward className="shift-icon" />;
-                  classes="stretch-key control-key";
+                  classes = "stretch-key control-key";
                   handleClick = this.onShiftClick;
                   break;
                 case "*sp":
                   buttonValue = " ";
-                  classes="space-bar";
+                  classes = "space-bar";
                   break;
                 case "*tb":
                   // @ts-ignore
                   buttonValue = <KeyboardTab />;
-                  classes="stretch-key control-key";
+                  classes = "stretch-key control-key";
                   handleClick = () => this.onKeyClick("\t");
                   break;
                 case "*cps":
                   // @ts-ignore
                   buttonValue = <KeyboardCapslock />;
-                  classes="stretch-key control-key";
+                  classes = "stretch-key control-key";
                   handleClick = this.onCapsLock;
                   break;
                 case "*e":
                   // @ts-ignore
                   buttonValue = <KeyboardReturn />;
-                  classes="stretch-key control-key";
+                  classes = "stretch-key control-key";
                   handleClick = this.onEnter;
                   break;
                 case "\\":
                   buttonValue = "\\";
-                  classes="stretch-key";
+                  classes = "stretch-key";
                   break;
                 case "*l":
                   // @ts-ignore
                   buttonValue = <PlayArrow className="left-arrow-icon" />;
-                  classes="control-key";
+                  classes = "control-key";
                   handleClick = () => this.onNavigate(true);
                   break;
                 case "*r":
                   // @ts-ignore
                   buttonValue = <PlayArrow className="right-arrow-icon" />;
-                  classes="control-key";
+                  classes = "control-key";
                   handleClick = () => this.onNavigate(false);
                   break;
                 default:

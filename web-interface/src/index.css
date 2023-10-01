@@ -1,5 +1,7 @@
 * {
   font-family: Arial, Helvetica, sans-serif;
+  background-color: #3A3A3A;
+  color: white;
 }
 
 h5 {
@@ -16,9 +18,9 @@ h3 {
 
 .popup-content {
   margin: auto;
-  background: rgb(255, 255, 255);
+  background: #3A3A3A;
   border-radius: 12px;
-  width: 50%;
+  width: 35%;
   padding: 5px;
 }
 
@@ -48,12 +50,20 @@ h3 {
 
 .inputArea {
   background: rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
+  background-color: #1B1B1B;
+  border-radius: 8px;
   border: none;
   outline: none;
-  font-family: monospace;
-  width: 100%;
-  height: 100%;
+  width: calc(100% - 32px);
+  margin-bottom: 24px;
+  align-content: center;
+  justify-content: center;
+  padding: 8px 16px 8px 16px;
+}
+
+.inputText {
+  display: flex;
   font-size: 18px;
-  margin-bottom: 12px;
+  height: 20px;
+  background-color: transparent;
 }

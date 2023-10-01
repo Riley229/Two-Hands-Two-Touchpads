@@ -27,6 +27,13 @@ class App extends React.Component {
       cursorIndex: 0,
       displayAddress: null,
       singleInputMode: true,
+
+      keyboardDim: {
+        top: 0,
+        left: 0,
+        height: 0,
+        width: 0,
+      },
     };
 
     // setup webhook listeners
@@ -89,20 +96,27 @@ class App extends React.Component {
   }
 
   render() {
-    const { input, displayAddress, singleInputMode } = this.state;
+    const { input, displayAddress, singleInputMode, keyboardDim } = this.state;
 
     return (
       <div className="main">
         <div>
-          <textarea 
+          <div className="inputArea">
+            <text className="inputText">{input}</text>
+          </div>
+          {/* <textarea 
             className="inputArea"
             value={input}
-          />
+          /> */}
         </div>
         <Keyboard 
           socket={socket}
           singleInputMode={singleInputMode}
-          inputHandler={this}
+          moveCursor={this.moveCursor}
+          placeCharacter={this.placeCharacter}
+          removeCharacter={this.removeCharacter}
+          enterPressed={this.enterPressed}
+          dimension={keyboardDim}
         />
 
         <Popup 
