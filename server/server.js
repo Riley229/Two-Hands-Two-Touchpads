@@ -95,7 +95,7 @@ function getAddress() {
     }
   }
 
-  return results.find((value) => value.startsWith('192.168'));
+  return results[0];
 }
 
 // bind connection event
