@@ -54,6 +54,23 @@ export default function App() {
     );
   };
 
+  const onBegin = (event, left, offsetx, offsety) => {
+    socket.emit("activate", left);
+    onPan(event, left, offsetx, offsety);
+  };
+
+  const onBeginSingle = (event) => {
+    onBegin(event, true, -30, -105);
+  };
+
+  const onBeginLeft = (event) => {
+    onBegin(event, true, -10, -40);
+  };
+
+  const onBeginRight = (event) => {
+    onBegin(event, false, 23, -40);
+  };
+
   const onPanSingle = (event) => {
     onPan(event, true, -30, -105);
   };
@@ -98,6 +115,7 @@ export default function App() {
           <TouchPad
             style={styles.touchPadSingle}
             text={"CENTER"}
+            onBegin={onBeginSingle}
             onPan={onPanSingle}
             onRelease={onReleaseLeft}
           />
@@ -106,12 +124,14 @@ export default function App() {
             <TouchPad
               style={styles.touchPadLeft}
               text={"LEFT"}
+              onBegin={onBeginLeft}
               onPan={onPanLeft}
               onRelease={onReleaseLeft}
             />
             <TouchPad
               style={styles.touchPadRight}
               text={"RIGHT"}
+              onBegin={onBeginRight}
               onPan={onPanRight}
               onRelease={onReleaseRight}
             />

@@ -1,12 +1,12 @@
-const { createServer } = require('http');
-const { Server } = require('socket.io');
-const { networkInterfaces } = require('os');
+const { createServer } = require("http");
+const { Server } = require("socket.io");
+const { networkInterfaces } = require("os");
 
 // define server
 const httpServer = createServer();
 const io = new Server(httpServer, {
   cors: {
-    origin: '*',
+    origin: "*",
   },
 });
 
@@ -19,26 +19,26 @@ var singleInputMode = true;
 function setupInterfaceSocket(socket) {
   // assign socket and send starting information
   webInterface = socket;
-  console.log('web-interface connected...');
+  console.log("web-interface connected...");
 
   // send current server IP address and input mode
-  const displayIP = (remote === null) ? addr : null;
-  socket.emit('display-ip', displayIP);
-  socket.emit('set-mode', singleInputMode);
+  const displayIP = remote === null ? addr : null;
+  socket.emit("display-ip", displayIP);
+  socket.emit("set-mode", singleInputMode);
 
   // unassign interface client on disconnect
-  socket.on('disconnect', function () {
+  socket.on("disconnect", function () {
     webInterface = null;
-    console.log('web interface disconnected...')
+    console.log("web interface disconnected...");
   });
 
   // listen for mode change events and forward to remote
-  socket.on('set-mode', function (singleInput) {
-    singleInputMode = singleInput
-    webInterface.emit('set-mode', singleInputMode);
+  socket.on("set-mode", function (singleInput) {
+    singleInputMode = singleInput;
+    webInterface.emit("set-mode", singleInputMode);
 
     if (remote === null) return;
-    remote.emit('set-mode', singleInputMode);
+    remote.emit("set-mode", singleInputMode);
   });
 }
 
@@ -46,39 +46,44 @@ function setupInterfaceSocket(socket) {
 function setupRemoteSocket(socket) {
   // assign socket
   remote = socket;
-  console.log('remote connected...');
+  console.log("remote connected...");
 
   // send current remote mode
-  socket.emit('set-mode', singleInputMode);
+  socket.emit("set-mode", singleInputMode);
 
   // update current server IP address on web interface
   if (webInterface === null) return;
-  webInterface.emit('display-ip', null);
+  webInterface.emit("display-ip", null);
 
   // unassign remote client on disconnect
-  socket.on('disconnect', function () {
+  socket.on("disconnect", function () {
     remote = null;
-    console.log('remote disconnected...');
+    console.log("remote disconnected...");
 
     // update current server IP address on web interface
     if (webInterface === null) return;
-    webInterface.emit('display-ip', addr);
+    webInterface.emit("display-ip", addr);
   });
 
   // listen to cursor events and forward to web interface
-  socket.on('cursor-move', function (left, x, y) {
+  socket.on("cursor-move", function (left, x, y) {
     if (webInterface === null) return;
-    webInterface.emit('cursor-move', left, x, y);
+    webInterface.emit("cursor-move", left, x, y);
   });
 
-  socket.on('cursor-set', function (left, x, y) {
+  socket.on("cursor-set", function (left, x, y) {
     if (webInterface === null) return;
-    webInterface.emit('cursor-set', left, x, y);
+    webInterface.emit("cursor-set", left, x, y);
   });
 
-  socket.on('click', function (left) {
+  socket.on("activate", function (left) {
     if (webInterface === null) return;
-    webInterface.emit('click', left);
+    webInterface.emit("activate", left);
+  });
+
+  socket.on("click", function (left) {
+    if (webInterface === null) return;
+    webInterface.emit("click", left);
   });
 }
 
@@ -89,9 +94,8 @@ function getAddress() {
 
   for (const name of Object.keys(nets)) {
     for (const net of nets[name]) {
-      const v4Value = (typeof (net.family) === 'string') ? 'IPv4' : 4
-      if (net.family === v4Value && !net.internal)
-        results.push(net.address);
+      const v4Value = typeof net.family === "string" ? "IPv4" : 4;
+      if (net.family === v4Value && !net.internal) results.push(net.address);
     }
   }
 
@@ -99,12 +103,12 @@ function getAddress() {
 }
 
 // bind connection event
-io.on('connection', function (socket) {
+io.on("connection", function (socket) {
   // assign client type
-  const clientType = socket.handshake.headers['client-type'];
-  if (clientType == 'web-interface' && webInterface == null) {
+  const clientType = socket.handshake.headers["client-type"];
+  if (clientType == "web-interface" && webInterface == null) {
     setupInterfaceSocket(socket);
-  } else if (clientType == 'remote' && remote == null) {
+  } else if (clientType == "remote" && remote == null) {
     setupRemoteSocket(socket);
   } else {
     socket.disconnect();

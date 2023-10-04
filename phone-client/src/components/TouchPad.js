@@ -3,10 +3,10 @@ import React from "react";
 import { Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
-export default function TouchPad({ style, text, onPan, onRelease }) {
+export default function TouchPad({ style, text, onBegin, onPan, onRelease }) {
   const touchPadGestures = Gesture.Race(
-    Gesture.Pan().onUpdate(onPan).onEnd(onRelease),
-    Gesture.Tap().onBegin(onPan).onEnd(onRelease)
+    Gesture.Pan().onBegin(onBegin).onUpdate(onPan).onEnd(onRelease),
+    Gesture.Tap().onBegin(onBegin).onEnd(onRelease)
   );
   return (
     <GestureDetector gesture={touchPadGestures}>
