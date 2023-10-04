@@ -292,9 +292,14 @@ class Keyboard extends React.Component {
               {row.map((button, j) => {
                 // determine if key is hovered
                 var selectedClass = "";
-                if (i === leftRow && j === leftColumn)
+                if (leftCursor.visible && i === leftRow && j === leftColumn)
                   selectedClass = "left-hover";
-                if (i === rightRow && j === rightColumn && !singleInputMode)
+                if (
+                  rightCursor.visible &&
+                  i === rightRow &&
+                  j === rightColumn &&
+                  !singleInputMode
+                )
                   selectedClass = "right-hover";
 
                 // determine if key is being clicked
