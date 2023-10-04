@@ -22,9 +22,8 @@ export default function App() {
   const doubleVerticalMultipler = 200;
 
   useEffect(() => {
-    if (socket) {
-      socket.close;
-    }
+    if (socket) socket.close;
+
     const newSocket = io("http://" + serverAddress + ":10942", {
       extraHeaders: {
         ["client-type"]: "remote",
@@ -34,7 +33,9 @@ export default function App() {
     newSocket.on("set-mode", async function (single) {
       setTouchMode(single);
     });
-    setSocket(newSocket);
+    newSocket.on("connect", () => {
+      setSocket(newSocket);
+    });
   }, [serverAddress]);
 
   const onPan = (event, left, offsetx, offsety) => {
@@ -43,8 +44,12 @@ export default function App() {
       (event.nativeEvent.x / width) * 100,
       (event.nativeEvent.y / height) * 100
     );
-    const xMultiplier = touchMode ? singleHorizontalMultiplier : doubleHorizontalMultiplier;
-    const yMultiplier = touchMode ? singleVerticalMultiplier : doubleVerticalMultipler;
+    const xMultiplier = touchMode
+      ? singleHorizontalMultiplier
+      : doubleHorizontalMultiplier;
+    const yMultiplier = touchMode
+      ? singleVerticalMultiplier
+      : doubleVerticalMultipler;
     socket.emit(
       "cursor-set",
       left,
@@ -85,9 +90,10 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      {!serverAddress && (
+      {!socket && (
         <ServerAddressInput
-          isVisible={!serverAddress}
+          style={styles.dialogContainer}
+          isVisible={!socket}
           onSave={(address) => setServerAddress(address)}
         />
       )}
@@ -124,18 +130,22 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "lightcyan",
+    backgroundColor: "rgba(116, 246, 246, 0.7)",
   },
   touchPadLeft: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "lightcyan",
+    backgroundColor: "rgba(116, 246, 246, 0.7)",
   },
   touchPadRight: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "lightpink",
+    backgroundColor: "rgba(235, 107, 126, 0.7)",
+  },
+  dialogContainer: {
+    color: "#FFFFFF",
+    backgroundColor: "#363636",
   },
 });
