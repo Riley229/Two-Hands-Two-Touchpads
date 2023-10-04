@@ -39,11 +39,7 @@ export default function App() {
   }, [serverAddress]);
 
   const onPan = (event, left, offsetx, offsety) => {
-    console.log(
-      left,
-      (event.nativeEvent.x / width) * 100,
-      (event.nativeEvent.y / height) * 100
-    );
+    console.log(left, (event.x / width) * 100, (event.y / height) * 100);
     const xMultiplier = touchMode
       ? singleHorizontalMultiplier
       : doubleHorizontalMultiplier;
@@ -53,8 +49,8 @@ export default function App() {
     socket.emit(
       "cursor-set",
       left,
-      (event.nativeEvent.x / width) * xMultiplier + offsetx,
-      (event.nativeEvent.y / height) * yMultiplier + offsety
+      (event.x / width) * xMultiplier + offsetx,
+      (event.y / height) * yMultiplier + offsety
     );
   };
 
@@ -71,13 +67,13 @@ export default function App() {
   };
 
   const onReleaseLeft = (event) => {
-    if (event.nativeEvent.state === State.END) {
+    if (event.state === State.END) {
       socket.emit("click", true);
     }
   };
 
   const onReleaseRight = (event) => {
-    if (event.nativeEvent.state === State.END) {
+    if (event.state === State.END) {
       socket.emit("click", false);
     }
   };
@@ -89,7 +85,7 @@ export default function App() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={styles.view}>
       {!socket && (
         <ServerAddressInput
           style={styles.dialogContainer}
@@ -126,6 +122,10 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  view: {
+    backgroundColor: "#363636",
+    flex: 1,
+  },
   touchPadSingle: {
     flex: 1,
     alignItems: "center",
