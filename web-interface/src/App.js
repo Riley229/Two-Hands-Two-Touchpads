@@ -30,8 +30,8 @@ class App extends React.Component {
       input: '',
       cursorIndex: 0,
       displayAddress: null,
-      singleInputMode: true,
       menuOpen: false,
+      singleInputMode: true,
       textSuggestions: false,
     };
 
