@@ -92,27 +92,27 @@ export default function App() {
   };
 
   const onBeginSingle = (event) => {
-    onBegin(event, true, -30, -105);
+    onBegin(event, true, -25, -105);
   };
 
   const onBeginLeft = (event) => {
-    onBegin(event, true, -10, -40);
+    onBegin(event, true, -10, -47);
   };
 
   const onBeginRight = (event) => {
-    onBegin(event, false, 23, -40);
+    onBegin(event, false, 23, -47);
   };
 
   const onPanSingle = (event) => {
-    onPan(event, true, -30, -105);
+    onPan(event, true, -25, -105);
   };
 
   const onPanLeft = (event) => {
-    onPan(event, true, -10, -40);
+    onPan(event, true, -10, -47);
   };
 
   const onPanRight = (event) => {
-    onPan(event, false, 23, -40);
+    onPan(event, false, 23, -47);
   };
 
   const onReleaseLeft = (event) => {
