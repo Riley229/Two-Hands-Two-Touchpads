@@ -1,14 +1,14 @@
-import React from 'react';
-import Popup from 'reactjs-popup';
-import Switch from 'react-switch';
 import { Settings } from "@mui/icons-material";
-import Keyboard from './components/Keyboard';
-import { io } from 'socket.io-client';
+import React from "react";
+import Switch from "react-switch";
+import Popup from "reactjs-popup";
+import { io } from "socket.io-client";
+import Keyboard from "./components/Keyboard";
 
 // setup websocket
-const socket = io('http://localhost:10942', {
+const socket = io("http://localhost:10942", {
   extraHeaders: {
-    'client-type': 'web-interface',
+    "client-type": "web-interface",
   },
 });
 
@@ -23,37 +23,45 @@ class App extends React.Component {
     this.enterPressed = this.enterPressed.bind(this);
     this.toggleMode = this.toggleMode.bind(this);
     this.toggleTextSuggestions = this.toggleTextSuggestions.bind(this);
+    this.toggleAbsolutePositioning = this.toggleAbsolutePositioning.bind(this);
     this.toggleMenu = this.toggleMenu.bind(this);
 
     // set initial state
     this.state = {
-      input: '',
+      input: "",
       cursorIndex: 0,
       displayAddress: null,
       singleInputMode: true,
       menuOpen: false,
       textSuggestions: false,
+      absolutePositioning: false,
     };
 
     // setup webhook listeners
     let self = this;
-    socket.on('display-ip', function (address) {
+    socket.on("display-ip", function (address) {
       self.setState({
         displayAddress: address,
       });
     });
 
-    socket.on('set-mode', function (singleInput) {
+    socket.on("set-mode", function (singleInput) {
       self.setState({
         singleInputMode: singleInput,
+      });
+    });
+
+    socket.on("set-absolute", function (absolute) {
+      self.setState({
+        absolutePositioning: absolute,
       });
     });
   }
 
   moveCursor(left) {
     const { input, cursorIndex } = this.state;
-    const offset = (left) ? -1 : 1
-    const value = Math.min(input.length, Math.max(0, cursorIndex + offset))
+    const offset = left ? -1 : 1;
+    const value = Math.min(input.length, Math.max(0, cursorIndex + offset));
 
     this.setState({
       cursorIndex: value,
@@ -62,8 +70,8 @@ class App extends React.Component {
 
   placeCharacter(char) {
     const { input, cursorIndex } = this.state;
-    const prefix = input.slice(0, cursorIndex)
-    const suffix = input.slice(cursorIndex)
+    const prefix = input.slice(0, cursorIndex);
+    const suffix = input.slice(cursorIndex);
 
     this.setState({
       input: prefix + char + suffix,
@@ -73,11 +81,10 @@ class App extends React.Component {
 
   removeCharacter() {
     const { input, cursorIndex } = this.state;
-    if (cursorIndex === 0)
-      return;
+    if (cursorIndex === 0) return;
 
-    const prefix = input.slice(0, cursorIndex - 1)
-    const suffix = input.slice(cursorIndex)
+    const prefix = input.slice(0, cursorIndex - 1);
+    const suffix = input.slice(cursorIndex);
 
     this.setState({
       input: prefix + suffix,
@@ -90,13 +97,17 @@ class App extends React.Component {
   }
 
   toggleMode(checked) {
-    socket.emit('set-mode', !checked);
+    socket.emit("set-mode", !checked);
   }
 
   toggleTextSuggestions(checked) {
     this.setState({
       textSuggestions: checked,
     });
+  }
+
+  toggleAbsolutePositioning(checked) {
+    socket.emit("set-absolute", checked);
   }
 
   toggleMenu() {
@@ -107,7 +118,14 @@ class App extends React.Component {
   }
 
   render() {
-    const { input, displayAddress, singleInputMode, textSuggestions, menuOpen } = this.state;
+    const {
+      input,
+      displayAddress,
+      singleInputMode,
+      textSuggestions,
+      menuOpen,
+      absolutePositioning,
+    } = this.state;
 
     return (
       <div>
@@ -121,16 +139,14 @@ class App extends React.Component {
             socket={socket}
             singleInputMode={singleInputMode}
             textSuggestions={textSuggestions}
+            absolute={absolutePositioning}
             moveCursor={this.moveCursor}
             placeCharacter={this.placeCharacter}
             removeCharacter={this.removeCharacter}
             enterPressed={this.enterPressed}
           />
 
-          <Popup
-            open={displayAddress != null}
-            closeOnDocumentClick={false}
-          >
+          <Popup open={displayAddress != null} closeOnDocumentClick={false}>
             <div>
               <h5>Connect a mobile device to continue</h5>
               <h3>{displayAddress}</h3>
@@ -138,14 +154,11 @@ class App extends React.Component {
           </Popup>
         </div>
 
-        <button
-          className="toggle-menu"
-          onClick={this.toggleMenu}
-        >
+        <button className="toggle-menu" onClick={this.toggleMenu}>
           <Settings />
         </button>
 
-        {menuOpen &&
+        {menuOpen && (
           <div className="menu">
             <h4>Settings</h4>
             <div className="menu-option">
@@ -171,9 +184,21 @@ class App extends React.Component {
                 onChange={this.toggleTextSuggestions}
               />
               <text className="menu-label">Text Suggestions</text>
+            </div>{" "}
+            <div className="menu-option">
+              <Switch
+                className="menu-input"
+                height={20}
+                width={40}
+                checkedIcon={false}
+                uncheckedIcon={false}
+                checked={absolutePositioning}
+                onChange={this.toggleAbsolutePositioning}
+              />
+              <text className="menu-label">Absolute Positioning</text>
             </div>
           </div>
-        }
+        )}
       </div>
     );
   }

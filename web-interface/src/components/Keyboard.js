@@ -109,27 +109,29 @@ class Keyboard extends React.Component {
       }
     });
 
-    socket.on("click", function (left) {
-      if (left) {
-        const { x, y } = self.state.leftCursor;
+    socket.on("click", (left) => {
+      const { absolute } = this.props;
 
-        self.setState({
+      if (left) {
+        const { x, y } = this.state.leftCursor;
+
+        this.setState({
           leftCursor: {
             x: x,
             y: y,
             click: true,
-            visible: false,
+            visible: !absolute,
           },
         });
       } else {
-        const { x, y } = self.state.rightCursor;
+        const { x, y } = this.state.rightCursor;
 
-        self.setState({
+        this.setState({
           rightCursor: {
             x: x,
             y: y,
             click: true,
-            visible: false,
+            visible: !absolute,
           },
         });
       }
@@ -392,21 +394,25 @@ class Keyboard extends React.Component {
     // override state if clicking == true
     if (rightCursor.click || leftCursor.click) {
       const leftX = leftCursor.x,
-        leftY = leftCursor.y;
+        leftY = leftCursor.y,
+        leftVisible = leftCursor.visible;
       const rightX = rightCursor.x,
-        rightY = rightCursor.y;
+        rightY = rightCursor.y,
+        rightVisible = rightCursor.visible;
 
       this.setState({
         leftCursor: {
           x: leftX,
           y: leftY,
           click: false,
+          visible: leftVisible,
         },
 
         rightCursor: {
           x: rightX,
           y: rightY,
           click: false,
+          visible: rightVisible,
         },
       });
     }

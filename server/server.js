@@ -40,6 +40,14 @@ function setupInterfaceSocket(socket) {
     if (remote === null) return;
     remote.emit("set-mode", singleInputMode);
   });
+
+  // listen for absolute-positioning change events and forward to remote
+  socket.on("set-absolute", function (absolute) {
+    webInterface.emit("set-absolute", absolute);
+
+    if (remote === null) return;
+    remote.emit("set-absolute", absolute);
+  });
 }
 
 // setup remote client bindings
