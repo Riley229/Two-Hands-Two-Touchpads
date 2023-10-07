@@ -14,6 +14,7 @@ const io = new Server(httpServer, {
 var webInterface = null;
 var remote = null;
 var singleInputMode = true;
+var absolutePositioning = false;
 
 // setup web interface client bindings
 function setupInterfaceSocket(socket) {
@@ -25,6 +26,7 @@ function setupInterfaceSocket(socket) {
   const displayIP = remote === null ? addr : null;
   socket.emit("display-ip", displayIP);
   socket.emit("set-mode", singleInputMode);
+  socket.emit("set-absolute", absolutePositioning);
 
   // unassign interface client on disconnect
   socket.on("disconnect", function () {
@@ -43,10 +45,11 @@ function setupInterfaceSocket(socket) {
 
   // listen for absolute-positioning change events and forward to remote
   socket.on("set-absolute", function (absolute) {
-    webInterface.emit("set-absolute", absolute);
+    absolutePositioning = absolute;
+    webInterface.emit("set-absolute", absolutePositioning);
 
     if (remote === null) return;
-    remote.emit("set-absolute", absolute);
+    remote.emit("set-absolute", absolutePositioning);
   });
 }
 
@@ -58,6 +61,7 @@ function setupRemoteSocket(socket) {
 
   // send current remote mode
   socket.emit("set-mode", singleInputMode);
+  socket.emit("set-absolute", absolutePositioning);
 
   // update current server IP address on web interface
   if (webInterface === null) return;
