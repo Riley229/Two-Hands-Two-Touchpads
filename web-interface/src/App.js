@@ -4,6 +4,7 @@ import Switch from "react-switch";
 import Popup from "reactjs-popup";
 import { io } from "socket.io-client";
 import Keyboard from "./components/Keyboard";
+import GetSearchSuggestions from "./data/GetSearchSuggestions";
 
 // setup websocket
 const socket = io("http://localhost:10942", {
@@ -20,6 +21,7 @@ class App extends React.Component {
     this.moveCursor = this.moveCursor.bind(this);
     this.placeCharacter = this.placeCharacter.bind(this);
     this.removeCharacter = this.removeCharacter.bind(this);
+    this.setInputValue = this.setInputValue.bind(this);
     this.enterPressed = this.enterPressed.bind(this);
     this.toggleMode = this.toggleMode.bind(this);
     this.toggleTextSuggestions = this.toggleTextSuggestions.bind(this);
@@ -31,8 +33,8 @@ class App extends React.Component {
       input: "",
       cursorIndex: 0,
       displayAddress: null,
-      singleInputMode: true,
       menuOpen: false,
+      singleInputMode: true,
       textSuggestions: false,
       absolutePositioning: false,
     };
@@ -92,6 +94,15 @@ class App extends React.Component {
     });
   }
 
+  setInputValue(value) {
+    this.setState({
+      input: value,
+      cursorIndex: value.length,
+    });
+
+    this.enterPressed();
+  }
+
   enterPressed() {
     // TODO: implement
   }
@@ -127,6 +138,10 @@ class App extends React.Component {
       absolutePositioning,
     } = this.state;
 
+    var generatedTextSuggestions = [];
+    if (textSuggestions)
+      generatedTextSuggestions = GetSearchSuggestions(input);
+
     return (
       <div>
         <div className="main">
@@ -138,11 +153,13 @@ class App extends React.Component {
           <Keyboard
             socket={socket}
             singleInputMode={singleInputMode}
-            textSuggestions={textSuggestions}
+            textSuggestionsEnabled={textSuggestions}
+            textSuggestions={generatedTextSuggestions}
             absolute={absolutePositioning}
             moveCursor={this.moveCursor}
             placeCharacter={this.placeCharacter}
             removeCharacter={this.removeCharacter}
+            setInputValue={this.setInputValue}
             enterPressed={this.enterPressed}
           />
 
