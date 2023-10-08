@@ -13,6 +13,7 @@ import "./Keyboard.css";
 import SimplifiedLayout from "../data/SimplifiedLayout";
 import StandardLayout from "../data/StandardLayout";
 import KeyboardButton from "./KeyboardButton";
+import SuggestionButton from "./SuggestionButton";
 
 class Keyboard extends React.Component {
   static simplifiedLayout = true;
@@ -28,6 +29,7 @@ class Keyboard extends React.Component {
     this.onEnter = this.onEnter.bind(this);
     this.onNavigate = this.onNavigate.bind(this);
     this.onKeyClick = this.onKeyClick.bind(this);
+    this.onSuggestionClick = this.onSuggestionClick.bind(this);
 
     // set initial state
     this.state = {
@@ -186,6 +188,11 @@ class Keyboard extends React.Component {
       });
   }
 
+  onSuggestionClick(value) {
+    const { setInputValue } = this.props;
+    setInputValue(value);
+  }
+
   calculateColumn(keys, posX) {
     // calculate default key width
     const keyWidth = 100 / (Keyboard.simplifiedLayout ? 11 : 14);
@@ -236,34 +243,56 @@ class Keyboard extends React.Component {
     return column;
   }
 
+  calculateSuggestionColumn(suggestions, posX) {
+    return 0; // TODO: implement
+  }
+
   render() {
     const { uppercase, capsLock, rightCursor, leftCursor } = this.state;
-    const { singleInputMode } = this.props;
+    const { singleInputMode, textSuggestionsEnabled, textSuggestions } = this.props;
     const keys = this.getLayout();
 
+    // calculate search suggestions height
+    const suggestionsHeight = (36 / 326) * 100;
+    const keyboardHeight = textSuggestionsEnabled ? (100 - suggestionsHeight) : 100
+
     // calculate row information to determine currently selected rows
-    const rowHeight = 100 / keys.length;
-    const maxRowIndex = 100 / rowHeight - 1;
+    const rowHeight = keyboardHeight / keys.length;
+    const maxRowIndex = keyboardHeight / rowHeight - 1;
 
     // calculate left cursor key position
-    const leftRow = Math.min(Math.floor(leftCursor.y / rowHeight), maxRowIndex);
-    const leftColumn = this.calculateColumn(keys[leftRow], leftCursor.x);
+    const leftY = textSuggestionsEnabled ? (leftCursor.y - suggestionsHeight) : leftCursor.y;
+    var leftRow, leftColumn;
+    if (textSuggestionsEnabled && leftY < 0) {
+      console.log('suggestions left');
+      leftRow = 'suggestions';
+      leftColumn = this.calculateSuggestionColumn(textSuggestions, leftCursor.x);
+    } else {
+      leftRow = Math.min(Math.floor(leftY / rowHeight), maxRowIndex);
+      leftColumn = this.calculateColumn(keys[leftRow], leftCursor.x);
+    }
 
     // calculate right cursor key position
-    const rightRow = Math.min(
-      Math.floor(rightCursor.y / rowHeight),
-      maxRowIndex
-    );
-    const rightColumn = this.calculateColumn(keys[rightRow], rightCursor.x);
+    const rightY = textSuggestionsEnabled ? (rightCursor.y - suggestionsHeight) : rightCursor.y;
+    var rightRow, rightColumn;
+    if (textSuggestionsEnabled && rightY < 0) {
+      rightRow = 'suggestions';
+      rightColumn = this.calculateSuggestionColumn(textSuggestions, rightCursor.x);
+    } else {
+      rightRow = Math.min(Math.floor(rightY / rowHeight), maxRowIndex);
+      rightColumn = this.calculateColumn(keys[rightRow], rightCursor.x);
+    }
 
     // create return value
     const value = (
       <div
-        className={`keyboard ${
-          Keyboard.simplifiedLayout
-            ? "simplified-keyboard"
-            : "standard-keyboard"
-        }`}
+        className={`keyboard ${Keyboard.simplifiedLayout
+          ? "simplified-keyboard"
+          : "standard-keyboard"
+          }`}
+        style={{
+          height: textSuggestionsEnabled ? "326px" : "290px",
+        }}
       >
         {leftCursor.visible && (
           <div
@@ -284,6 +313,44 @@ class Keyboard extends React.Component {
             }}
           />
         )}
+
+        {textSuggestionsEnabled &&
+          <div className="search-suggestions">
+            {textSuggestions.length === 0
+              ? <div style={{ height: "36px" }} />
+              : textSuggestions.map((suggestion, i) => {
+                // determine if key is hovered
+                var selectedClass = "";
+                if (leftCursor.visible && leftRow === 'suggestions' && i === leftColumn)
+                  selectedClass = "left-hover";
+                if (
+                  rightCursor.visible &&
+                  rightRow === 'suggestions' &&
+                  i === rightColumn &&
+                  !singleInputMode
+                )
+                  selectedClass = "right-hover";
+
+                // determine if key is being clicked
+                var clicking = false;
+                if (leftRow === 'suggestions' && i === leftColumn && leftCursor.click)
+                  clicking = true;
+                if (rightRow === 'suggestions' && i === rightColumn && rightCursor.click)
+                  clicking = true;
+
+                // trigger click action, if necessary
+                if (clicking) this.onSuggestionClick(suggestion);
+
+                return (
+                  <SuggestionButton
+                    value={suggestion}
+                    onClick={this.onSuggestionClick}
+                    classes={selectedClass}
+                  />
+                );
+              })}
+          </div>
+        }
 
         {keys.map((row, i) => {
           var shiftRow = false;
@@ -381,7 +448,6 @@ class Keyboard extends React.Component {
                     value={buttonValue}
                     onClick={handleClick}
                     classes={`${classes} ${selectedClass}`}
-                    clicking={clicking}
                   />
                 );
               })}

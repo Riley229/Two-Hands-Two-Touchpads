@@ -1,19 +1,21 @@
 import React from "react";
+import { Search } from "@mui/icons-material";
 
-class KeyboardButton extends React.Component {
+class SuggestionButton extends React.Component {
   render() {
     const { onClick, value, classes } = this.props;
 
     return (
       <button
-        className={`keyboard-button ${classes || ''}`}
+        className={`search-suggestion ${classes || ''}`}
         type="button"
         onClick={() => onClick(value)}
       >
+        <Search />
         {value}
       </button>
     );
   }
 }
 
-export default KeyboardButton;
+export default SuggestionButton;
