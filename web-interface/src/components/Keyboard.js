@@ -270,7 +270,7 @@ class Keyboard extends React.Component {
     const keys = this.getLayout();
 
     // reset text suggestion refs if suggestions changed
-    if (textSuggestions != this.previousTextSuggestions) {
+    if (textSuggestions !== this.previousTextSuggestions) {
       this.suggestionRefs = [];
       this.previousTextSuggestions = textSuggestions;
     }
@@ -316,19 +316,17 @@ class Keyboard extends React.Component {
           height: textSuggestionsEnabled ? "326px" : "290px",
         }}
       >
-        {leftCursor.visible && (
-          <div
-            className="cursor left-cursor"
-            style={{
-              top: `calc(${leftCursor.y}% - 5px)`,
-              left: `calc(${leftCursor.x}% - 5px)`,
-            }}
-          />
-        )}
+        <div
+          className={`cursor left-cursor ${!leftCursor.visible ? 'hidden' : 'visible'}`}
+          style={{
+            top: `calc(${leftCursor.y}% - 5px)`,
+            left: `calc(${leftCursor.x}% - 5px)`,
+          }}
+        />
 
-        {rightCursor.visible && !singleInputMode && (
+        {!singleInputMode && (
           <div
-            className="cursor right-cursor"
+            className={`cursor right-cursor ${!rightCursor.visible ? 'hidden' : 'visible'}`}
             style={{
               top: `calc(${rightCursor.y}% - 5px)`,
               left: `calc(${rightCursor.x}% - 5px)`,
