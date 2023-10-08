@@ -53,6 +53,10 @@ class Keyboard extends React.Component {
       },
     };
 
+    // setup suggestions ref list
+    this.suggestionRefs = [];
+    this.previousTextSuggestions = [];
+
     // setup webhook listeners
     const { socket } = this.props;
     let self = this;
@@ -244,13 +248,32 @@ class Keyboard extends React.Component {
   }
 
   calculateSuggestionColumn(suggestions, posX) {
-    return 0; // TODO: implement
+    var currentX = 0;
+
+    for (let i = 0; i < this.suggestionRefs.length; i++) {
+      const ref = this.suggestionRefs[i];
+      const width = (ref.current.getBoundingClientRect().width + 4)
+      const scalarWidth = (width / 1030) * 100;
+      currentX += scalarWidth;
+
+      if (currentX > 100) {
+        return i - 1;
+      } else if (currentX >= posX) {
+        return i;
+      }
+    }
   }
 
   render() {
     const { uppercase, capsLock, rightCursor, leftCursor } = this.state;
     const { singleInputMode, textSuggestionsEnabled, textSuggestions } = this.props;
     const keys = this.getLayout();
+
+    // reset text suggestion refs if suggestions changed
+    if (textSuggestions != this.previousTextSuggestions) {
+      this.suggestionRefs = [];
+      this.previousTextSuggestions = textSuggestions;
+    }
 
     // calculate search suggestions height
     const suggestionsHeight = (36 / 326) * 100;
@@ -264,7 +287,6 @@ class Keyboard extends React.Component {
     const leftY = textSuggestionsEnabled ? (leftCursor.y - suggestionsHeight) : leftCursor.y;
     var leftRow, leftColumn;
     if (textSuggestionsEnabled && leftY < 0) {
-      console.log('suggestions left');
       leftRow = 'suggestions';
       leftColumn = this.calculateSuggestionColumn(textSuggestions, leftCursor.x);
     } else {
@@ -346,6 +368,7 @@ class Keyboard extends React.Component {
                     value={suggestion}
                     onClick={this.onSuggestionClick}
                     classes={selectedClass}
+                    setRef={(ref) => this.suggestionRefs[i] = ref}
                   />
                 );
               })}
