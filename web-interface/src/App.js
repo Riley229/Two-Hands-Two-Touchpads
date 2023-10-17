@@ -156,6 +156,7 @@ class App extends React.Component {
   render() {
     const {
       input,
+      cursorIndex,
       displayAddress,
       singleInputMode,
       textSuggestions,
@@ -172,8 +173,10 @@ class App extends React.Component {
       <div>
         <div className="main">
           <div>
-            <div className="inputArea">
-              <text className="inputText">{input}</text>
+            <div className="input-area">
+              <text className="input-text">{input.substring(0, cursorIndex)}</text>
+              <div className="text-cursor" />
+              <text className="input-text">{input.substring(cursorIndex)}</text>
             </div>
           </div>
           <Keyboard
