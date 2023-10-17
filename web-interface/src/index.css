@@ -90,7 +90,7 @@ h3 {
   bottom: 61px;
   left: 8px;
   width: 225px;
-  height: 300px;
+  height: 236px;
   border-radius: 12px;
   background-color: #1B1B1B;
   box-shadow: 0 1px 1px 0 rgba(50, 50, 50, 0.2);
@@ -108,4 +108,29 @@ h4 {
 
 .menu-input, .menu-label {
   padding-left: 12px;
+}
+
+.participant-field {
+  margin-left: 12px;
+  width: 48px;
+  height: 20px;
+  text-align: center;
+  font-weight: 100;
+  background-color: #2A2A2A;
+}
+
+.participant-set {
+  margin-left: 12px;
+  width: 124px;
+  height: 28px;
+  cursor: pointer;
+  background-color: #363636;
+}
+
+.participant-field, .participant-set {
+  padding: 4px 8px 4px 8px;
+  border: none;
+  border-radius: 4px;
+  font-size: 15px;
+  box-shadow: 0 1px 1px 0 rgba(50, 50, 50, 0.2);
 }

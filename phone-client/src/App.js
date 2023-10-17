@@ -7,6 +7,7 @@ import TouchPad from "./components/TouchPad";
 
 import { LogBox } from "react-native";
 import ServerAddressInput from "./components/ServerAddressInput";
+import SessionStartInput from "./components/SessionStartInput";
 LogBox.ignoreLogs(["new NativeEventEmitter()"]); // Ignore log notification by message
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
   const [touchMode, setTouchMode] = useState(true);
   const [absoluteMode, setAbsoluteMode] = useState(false);
   const [serverAddress, setServerAddress] = useState("");
+  const [displayStart, setDisplayStart] = useState(true);
   const [socket, setSocket] = useState(null);
 
   const singleHorizontalMultiplier = 150;
@@ -44,8 +46,14 @@ export default function App() {
     newSocket.on("set-absolute", async function (absolute) {
       setAbsoluteMode(absolute);
     });
+    newSocket.on("hide-timer-button", (hidden) => {
+      setDisplayStart(!hidden);
+    });
     newSocket.on("connect", () => {
       setSocket(newSocket);
+    });
+    newSocket.on("disconnect", () => {
+      setServerAddress(null);
     });
   }, [serverAddress]);
 
@@ -145,6 +153,11 @@ export default function App() {
     socket.emit("click", false);
   };
 
+  const onStartSession = (event) => {
+    console.log("starting session");
+    socket.emit("start-session");
+  };
+
   if (touchMode) {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
   } else {
@@ -160,7 +173,13 @@ export default function App() {
           onSave={(address) => setServerAddress(address)}
         />
       )}
-      {socket &&
+      {socket && displayStart &&
+        <SessionStartInput 
+          style={styles.dialogContainer}
+          onClick={onStartSession}
+        />
+      }
+      {socket && !displayStart &&
         (touchMode ? (
           <TouchPad
             style={styles.touchPadSingle}

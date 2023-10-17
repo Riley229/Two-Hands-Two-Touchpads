@@ -26,6 +26,7 @@ class App extends React.Component {
     this.toggleMode = this.toggleMode.bind(this);
     this.toggleTextSuggestions = this.toggleTextSuggestions.bind(this);
     this.toggleAbsolutePositioning = this.toggleAbsolutePositioning.bind(this);
+    this.setParticipant = this.setParticipant.bind(this);
     this.toggleMenu = this.toggleMenu.bind(this);
 
     // set initial state
@@ -33,6 +34,7 @@ class App extends React.Component {
       input: "",
       cursorIndex: 0,
       displayAddress: null,
+      participantId: null,
       menuOpen: false,
       singleInputMode: true,
       textSuggestions: false,
@@ -56,6 +58,24 @@ class App extends React.Component {
     socket.on("set-absolute", function (absolute) {
       self.setState({
         absolutePositioning: absolute,
+      });
+    });
+
+    socket.on("set-suggestions", function(suggestionsEnabled) {
+      self.setState({
+        textSuggestions: suggestionsEnabled,
+      });
+    });
+
+    socket.on("set-participant", function(participant) {
+      self.setState({
+        participantId: participant,
+      });
+    });
+
+    socket.on("reset-input", function() {
+      self.setState({
+        input: "",
       });
     });
   }
@@ -100,11 +120,13 @@ class App extends React.Component {
       cursorIndex: value.length,
     });
 
-    this.enterPressed();
+    this.enterPressed(value, true);
   }
 
-  enterPressed() {
-    // TODO: implement
+  enterPressed(value, autosuggest) {
+    autosuggest = autosuggest ?? false;
+    const { input } = this.state;
+    socket.emit("enter-pressed", value ?? input, autosuggest);
   }
 
   toggleMode(checked) {
@@ -112,13 +134,16 @@ class App extends React.Component {
   }
 
   toggleTextSuggestions(checked) {
-    this.setState({
-      textSuggestions: checked,
-    });
+    socket.emit("set-suggestions", checked);
   }
 
   toggleAbsolutePositioning(checked) {
     socket.emit("set-absolute", checked);
+  }
+
+  setParticipant() {
+    const { participantId } = this.state;
+    socket.emit("set-participant", participantId);
   }
 
   toggleMenu() {
@@ -134,6 +159,7 @@ class App extends React.Component {
       displayAddress,
       singleInputMode,
       textSuggestions,
+      participantId,
       menuOpen,
       absolutePositioning,
     } = this.state;
@@ -213,6 +239,21 @@ class App extends React.Component {
                 onChange={this.toggleAbsolutePositioning}
               />
               <text className="menu-label">Absolute Positioning</text>
+            </div>
+            <div className="menu-option" />
+            <div className="menu-option" />
+            <div className="menu-option">
+              <input
+                className="participant-field"
+                type="text" 
+                value={participantId}
+                onInput={(event) => {
+                  this.setState({
+                    participantId: event.target.value,
+                  });
+                }}
+              />
+              <button className="participant-set" onClick={this.setParticipant}>Set Participant</button>
             </div>
           </div>
         )}
