@@ -1,33 +1,36 @@
 import Papa from "papaparse";
 
-var data = null;
+var alphabetized = null;
 
-async function fetchData() {
-    const response = await fetch("https://raw.githubusercontent.com/xxittysnxx/Data-Visualization/main/data.csv");
+async function fetchData(char) {
+    var data = null;
+    const response = await fetch("https://raw.githubusercontent.com/Riley229/IMDb-dataset-filtered/main/imdb.titles.csv");
+    
     data = await response.text();
     data = Papa.parse(data, { header: true }).data;
+    alphabetized = {};
+
+    for (let i = 0; i < 26; i++) {
+        const char = String.fromCharCode(97 + i);
+        alphabetized[char] = data
+            .filter((/** @type {{ title: string; }} */ item) => item.title.substring(0, 1).toLowerCase() === char)
+            .map((/** @type {{ title: string; }} */ item) => item.title ?? "");
+    }
 }
 
 function GetSearchSuggestions(input) {
     const keyword = input.toLowerCase();
     const suggestions = [];
 
-    if (data == null) {
-        fetchData();
+    if (keyword === '' || keyword.startsWith('.')) {
         return [];
-    } else if (keyword === '') {
+    } else if (alphabetized === null) {
+        fetchData();
         return [];
     }
     
-    // iterate over each csv entry and match with keyword
-    data.forEach((/** @type {{ title: string; }} */ item) => {
-        const csvKeyword = item.title && item.title.toLowerCase();
-        
-        if (csvKeyword && (csvKeyword.startsWith(keyword)))
-            suggestions.push(item.title);
-    });
-
-    return suggestions;
+    const firstChar = keyword.substring(0, 1).toLowerCase();
+    return alphabetized[firstChar].filter((title) => title.toLowerCase().startsWith(keyword));
 }
 
 export default GetSearchSuggestions;
