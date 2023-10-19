@@ -37,6 +37,7 @@ class App extends React.Component {
       singleInputMode: true,
       textSuggestions: false,
       absolutePositioning: false,
+      generatedTextSuggestions: [],
     };
 
     // setup webhook listeners
@@ -128,6 +129,14 @@ class App extends React.Component {
     });
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.input !== prevState.input) {
+      this.setState({
+        generatedTextSuggestions: GetSearchSuggestions(this.state.input),
+      });
+    }
+  }
+
   render() {
     const {
       input,
@@ -137,10 +146,6 @@ class App extends React.Component {
       menuOpen,
       absolutePositioning,
     } = this.state;
-
-    var generatedTextSuggestions = [];
-    if (textSuggestions)
-      generatedTextSuggestions = GetSearchSuggestions(input);
 
     return (
       <div>
@@ -154,7 +159,9 @@ class App extends React.Component {
             socket={socket}
             singleInputMode={singleInputMode}
             textSuggestionsEnabled={textSuggestions}
-            textSuggestions={generatedTextSuggestions}
+            textSuggestions={
+              textSuggestions && this.state.generatedTextSuggestions
+            }
             absolute={absolutePositioning}
             moveCursor={this.moveCursor}
             placeCharacter={this.placeCharacter}
