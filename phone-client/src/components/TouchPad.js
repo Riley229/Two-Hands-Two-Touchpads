@@ -14,6 +14,7 @@ export default function TouchPad({
   var longPressIntervalId;
   const startLongPress = (event) => {
     longPressIntervalId = setInterval(() => {
+      onPan(event);
       onTap(event);
     }, 100);
   };
