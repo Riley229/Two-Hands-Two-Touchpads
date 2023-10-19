@@ -140,13 +140,11 @@ export default function App() {
   };
 
   const onTapLeft = (event) => {
-    if (event.state !== State.END) return;
     Vibration.vibrate(vibrationDuration);
     socket.emit("click", true);
   };
 
   const onTapRight = (event) => {
-    if (event.state !== State.END) return;
     Vibration.vibrate(vibrationDuration);
     socket.emit("click", false);
   };
