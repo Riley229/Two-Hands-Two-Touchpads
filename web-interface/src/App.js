@@ -33,6 +33,7 @@ class App extends React.Component {
     this.state = {
       input: "",
       cursorIndex: 0,
+      charsEntered: 0,
       displayAddress: null,
       participantId: null,
       menuOpen: false,
@@ -76,6 +77,7 @@ class App extends React.Component {
     socket.on("reset-input", function() {
       self.setState({
         input: "",
+        charsEntered: 0.
       });
     });
   }
@@ -91,13 +93,14 @@ class App extends React.Component {
   }
 
   placeCharacter(char) {
-    const { input, cursorIndex } = this.state;
+    const { input, cursorIndex, charsEntered } = this.state;
     const prefix = input.slice(0, cursorIndex);
     const suffix = input.slice(cursorIndex);
 
     this.setState({
       input: prefix + char + suffix,
       cursorIndex: cursorIndex + 1,
+      charsEntered: charsEntered + 1,
     });
   }
 
@@ -124,9 +127,13 @@ class App extends React.Component {
   }
 
   enterPressed(value, autosuggest) {
+    const { input, charsEntered } = this.state;
+
     autosuggest = autosuggest ?? false;
-    const { input } = this.state;
-    socket.emit("enter-pressed", value ?? input, autosuggest);
+    value = value ?? input;
+    const actualCharsEntered = autosuggest ? (charsEntered + (value.length - input.length)) : charsEntered;
+
+    socket.emit("enter-pressed", value, actualCharsEntered, autosuggest);
   }
 
   toggleMode(checked) {

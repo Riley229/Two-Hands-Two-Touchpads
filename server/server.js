@@ -28,7 +28,7 @@ function handleSessionStart() {
     sessionStart = Date.now();
 }
 
-function handleSessionEnd(word, usedSuggestion) {
+function handleSessionEnd(word, charsEntered, usedSuggestion) {
   const sessionEnd = Date.now();
   const delta = sessionEnd - sessionStart;
   inSession = false;
@@ -36,8 +36,8 @@ function handleSessionEnd(word, usedSuggestion) {
 
   // TODO: write to csv file
   //  - filename: "Participant_Data.csv"
-  //  - if file doesn't exist, write header row: "Participant Id,Input Mode,Suggestions Enabled,Text Input,Used Suggestion,Time Taken (ms)"
-  console.log(`${participantId},${singleInputMode ? "Single-cursor" : "Dual-cursor"},${textSuggestions ? "Enabled" : "Disabled"},${word},${usedSuggestion ? "Yes" : "No"},${delta}`);
+  //  - if file doesn't exist, write header row: "Participant Id,Input Mode,Suggestions Enabled,Text Input,Chars Entered (With Errors),Used Suggestion,Time Taken (ms)"
+  console.log(`${participantId},${singleInputMode ? "Single-cursor" : "Dual-cursor"},${textSuggestions ? "Enabled" : "Disabled"},${word},${charsEntered},${usedSuggestion ? "Yes" : "No"},${delta}`);
 
   if (webInterface == null) return;
   webInterface.emit("cursor-reset");
@@ -91,8 +91,8 @@ function setupInterfaceSocket(socket) {
   })
 
   // listen for enter pressed to end current session
-  socket.on("enter-pressed", function(input, autosuggest) {
-    handleSessionEnd(input, autosuggest);
+  socket.on("enter-pressed", function(input, charsEntered, autosuggest) {
+    handleSessionEnd(input, charsEntered, autosuggest);
   });
 
   // listen for "set-participant" events to set session variables
