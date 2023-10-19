@@ -1,6 +1,6 @@
 import * as ScreenOrientation from "expo-screen-orientation";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, useWindowDimensions } from "react-native";
+import { StyleSheet, Vibration, View, useWindowDimensions } from "react-native";
 import { GestureHandlerRootView, State } from "react-native-gesture-handler";
 import { io } from "socket.io-client";
 import TouchPad from "./components/TouchPad";
@@ -28,6 +28,8 @@ export default function App() {
     leftOffsetY = 0;
   var rightOffsetX = 0,
     rightOffsetY = 0;
+
+  const vibrationDuration = 50;
 
   useEffect(() => {
     if (socket) socket.close;
@@ -118,6 +120,7 @@ export default function App() {
   const onReleaseLeft = (event) => {
     if (event.state === State.END) {
       if (absoluteMode) {
+        Vibration.vibrate(vibrationDuration);
         socket.emit("click", true);
       } else {
         (leftOffsetX = 0), (leftOffsetY = 0);
@@ -128,6 +131,7 @@ export default function App() {
   const onReleaseRight = (event) => {
     if (event.state === State.END) {
       if (absoluteMode) {
+        Vibration.vibrate(vibrationDuration);
         socket.emit("click", false);
       } else {
         (rightOffsetX = 0), (rightOffsetY = 0);
@@ -137,11 +141,13 @@ export default function App() {
 
   const onTapLeft = (event) => {
     if (event.state !== State.END) return;
+    Vibration.vibrate(vibrationDuration);
     socket.emit("click", true);
   };
 
   const onTapRight = (event) => {
     if (event.state !== State.END) return;
+    Vibration.vibrate(vibrationDuration);
     socket.emit("click", false);
   };
 
