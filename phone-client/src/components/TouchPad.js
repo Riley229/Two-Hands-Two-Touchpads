@@ -11,9 +11,20 @@ export default function TouchPad({
   onRelease,
   onTap,
 }) {
+  var longPressIntervalId;
+  const startLongPress = (event) => {
+    longPressIntervalId = setInterval(() => {
+      onPan(event);
+      onTap(event);
+    }, 100);
+  };
+  const endLongPress = () => {
+    clearInterval(longPressIntervalId);
+  };
   const touchPadGestures = Gesture.Race(
-    Gesture.Pan().onBegin(onBegin).onUpdate(onPan).onEnd(onRelease),
-    Gesture.Tap().onBegin(onBegin).onEnd(onTap)
+    Gesture.LongPress().onStart(startLongPress).onEnd(endLongPress),
+    Gesture.Tap().onBegin(onBegin).onEnd(onTap),
+    Gesture.Pan().onBegin(onBegin).onUpdate(onPan).onEnd(onRelease)
   );
   return (
     <GestureDetector gesture={touchPadGestures}>
