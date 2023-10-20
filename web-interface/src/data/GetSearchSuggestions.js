@@ -3,9 +3,9 @@ import Papa from "papaparse";
 const maxSuggestions = 15;
 var data = null;
 
-async function fetchData(char) {
+async function LoadSearchData(onComplete) {
     var rawdata = null;
-    const response = await fetch("https://raw.githubusercontent.com/Riley229/IMDb-dataset-filtered/main/imdb.titles.csv");
+    const response = await fetch("https://raw.githubusercontent.com/Riley229/IMDb-dataset-filtered/main/imdb.ordered-movies.csv");
 
     rawdata = await response.text();
     rawdata = Papa.parse(rawdata, { header: true }).data;
@@ -22,21 +22,18 @@ async function fetchData(char) {
                 };
             });
     }
+
+    onComplete();
 }
 
 function GetSearchSuggestions(input) {
     const keyword = input.toLowerCase();
     const suggestions = [];
 
-    if (data === null) {
-        fetchData();
+    if (data === null || keyword === '' || keyword.startsWith('.'))
         return [];
-    } else if (keyword === '' || keyword.startsWith('.')) {
-        return [];
-    }
 
     const firstChar = keyword.substring(0, 1).toLowerCase();
-    //return alphabetized[firstChar].filter((/** @type {{ title: string; }} */ entry) => entry.title.toLowerCase().startsWith(keyword));
 
     // iterate over each entry and match with keyword
     for (let i = 0; i < data[firstChar].length; i++) {
@@ -44,26 +41,14 @@ function GetSearchSuggestions(input) {
         if (item.compare.startsWith(keyword))
             suggestions.push(item.title);
 
-        if (suggestions.length > maxSuggestions)
+        if (suggestions.length >= maxSuggestions)
             return suggestions;
     }
-    // for (const item in data[firstChar]) {
-    //     if (item.compare.startsWith(keyword))
-    //         suggestions.push(item.title);
-
-    //     if (suggestions.length > maxSuggestions)
-    //         return suggestions;
-    // }
-
-    // data[firstChar].forEach((/** @type {{ title: string; compare: String; }} */ item) => {
-    //     if (item.compare.startsWith(keyword))
-    //         suggestions.push(item.title);
-
-    //     if (suggestions.length > maxSuggestions)
-            
-    // });
 
     return suggestions;
 }
 
-export default GetSearchSuggestions;
+export {
+    GetSearchSuggestions,
+    LoadSearchData,
+}

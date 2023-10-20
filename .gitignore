@@ -26,5 +26,6 @@
 *.code-workspace
 
 # imdb dataset
-title.basics.tsv
-imdb.titles.csv
+title.*.tsv
+imdb.*.csv
+imdb.*.tsv

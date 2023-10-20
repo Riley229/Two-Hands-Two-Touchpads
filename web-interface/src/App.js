@@ -4,7 +4,7 @@ import Switch from "react-switch";
 import Popup from "reactjs-popup";
 import { io } from "socket.io-client";
 import Keyboard from "./components/Keyboard";
-import GetSearchSuggestions from "./data/GetSearchSuggestions";
+import { GetSearchSuggestions, LoadSearchData } from "./data/GetSearchSuggestions";
 
 // setup websocket
 const socket = io("http://localhost:10942", {
@@ -38,6 +38,7 @@ class App extends React.Component {
       textSuggestions: false,
       absolutePositioning: false,
       generatedTextSuggestions: [],
+      suggestionDataLoaded: false,
     };
 
     // setup webhook listeners
@@ -57,6 +58,13 @@ class App extends React.Component {
     socket.on("set-absolute", function (absolute) {
       self.setState({
         absolutePositioning: absolute,
+      });
+    });
+
+    // start loading and parsing search data
+    LoadSearchData(() => {
+      this.setState({
+        suggestionDataLoaded: true,
       });
     });
   }
@@ -145,6 +153,7 @@ class App extends React.Component {
       textSuggestions,
       menuOpen,
       absolutePositioning,
+      suggestionDataLoaded,
     } = this.state;
 
     return (
@@ -170,7 +179,14 @@ class App extends React.Component {
             enterPressed={this.enterPressed}
           />
 
-          <Popup open={displayAddress != null} closeOnDocumentClick={false}>
+          <Popup open={!suggestionDataLoaded} closeOnDocumentClick={false}>
+            <div>
+              <h5>Pre-loading text-suggestions...</h5>
+              <h3>Please Wait</h3>
+            </div>
+          </Popup>
+
+          <Popup open={suggestionDataLoaded && displayAddress != null} closeOnDocumentClick={false}>
             <div>
               <h5>Connect a mobile device to continue</h5>
               <h3>{displayAddress}</h3>
