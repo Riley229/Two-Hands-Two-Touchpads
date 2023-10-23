@@ -1,6 +1,7 @@
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const { networkInterfaces } = require("os");
+const fs = require("fs");
 
 // define server
 const httpServer = createServer();
@@ -37,7 +38,31 @@ function handleSessionEnd(word, charsEntered, usedSuggestion) {
   // TODO: write to csv file
   //  - filename: "Participant_Data.csv"
   //  - if file doesn't exist, write header row: "Participant Id,Input Mode,Suggestions Enabled,Text Input,Chars Entered (With Errors),Used Suggestion,Time Taken (ms)"
-  console.log(`${participantId},${singleInputMode ? "Single-cursor" : "Dual-cursor"},${textSuggestions ? "Enabled" : "Disabled"},${word},${charsEntered},${usedSuggestion ? "Yes" : "No"},${delta}`);
+  console.log(`${participantId}, ${singleInputMode ? "Single-cursor" : "Dual-cursor"}, ${textSuggestions ? "Enabled" : "Disabled"}, ${word}, ${charsEntered}, ${usedSuggestion ? "Yes" : "No"}, ${delta}`);
+  
+  // CSV header row
+  const header = 'participant ID, input mode, auto suggestions enabled, text input, chars entered, text suggestion used, time taken\n';
+
+  // Create a function to format the data as a CSV row
+  function formatAsCSVRow() {
+    return `${participantId}, ${singleInputMode ? "Single-cursor" : "Dual-cursor"}, ${textSuggestions ? "Enabled" : "Disabled"}, ${word}, ${charsEntered}, ${usedSuggestion ? "Yes" : "No"}, ${delta}\n`;
+  }
+
+  // Check if the file exists
+  const filePath = '../Participant_Data.csv';
+  const fileExists = fs.existsSync(filePath);
+  if (!fileExists) {
+    fs.writeFileSync(filePath, header);
+  }
+
+  // Append the data to the CSV file
+  fs.appendFile(filePath, formatAsCSVRow(), (err) => {
+    if (err) {
+      console.error('Error writing to the CSV file:', err);
+    } else {
+      console.log('Data added to the CSV file successfully.');
+    }
+  });
 
   if (webInterface == null) return;
   webInterface.emit("cursor-reset");
