@@ -1,6 +1,7 @@
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const { networkInterfaces } = require("os");
+const fs = require("fs");
 
 // define server
 const httpServer = createServer();
@@ -15,6 +16,61 @@ var webInterface = null;
 var remote = null;
 var singleInputMode = true;
 var absolutePositioning = false;
+var textSuggestions = false;
+
+// define timer and session management variables
+var inSession = false;
+var sessionStart = null;
+var participantId = null;
+
+// file variables
+const filePath = '../Participant_Data.csv';
+const csvHeader = 'Participant Id,Input Mode,Suggestions Enabled,Text Input,Chars Entered (With Errors),Used Suggestion,Time Taken (ms)\n';
+
+// formats session data as a CSV row
+function formatAsCSVRow(word, charsEntered, usedSuggestion, delta) {
+  return `${participantId}, ${singleInputMode ? "Single-cursor" : "Dual-cursor"}, ${textSuggestions ? "Enabled" : "Disabled"}, ${word}, ${charsEntered}, ${usedSuggestion ? "Yes" : "No"}, ${delta}\n`;
+}
+
+// runs to end session timer and write info to file
+function handleSessionStart() {
+  if (inSession && sessionStart == null)
+    sessionStart = Date.now();
+}
+
+function handleSessionEnd(word, charsEntered, usedSuggestion) {
+  const sessionEnd = Date.now();
+  const delta = sessionEnd - sessionStart;
+  inSession = false;
+  sessionStart = null;
+
+  // TODO: write to csv file
+  //  - filename: "Participant_Data.csv"
+  //  - if file doesn't exist, write header row: "Participant Id,Input Mode,Suggestions Enabled,Text Input,Chars Entered (With Errors),Used Suggestion,Time Taken (ms)"
+  console.log(`${participantId},${singleInputMode ? "Single-cursor" : "Dual-cursor"},${textSuggestions ? "Enabled" : "Disabled"},${word},${charsEntered},${usedSuggestion ? "Yes" : "No"},${delta}`);
+
+  // Check if the file exists
+  const filePath = '../Participant_Data.csv';
+  const fileExists = fs.existsSync(filePath);
+  if (!fileExists) {
+    fs.writeFileSync(filePath, csvHeader);
+  }
+
+  // Append the data to the CSV file
+  fs.appendFile(filePath, formatAsCSVRow(word, charsEntered, usedSuggestion, delta), (err) => {
+    if (err) {
+      console.error('Error writing to the CSV file:', err);
+    } else {
+      console.log('Data added to the CSV file successfully.');
+    }
+  });
+
+  if (webInterface == null) return;
+  webInterface.emit("cursor-reset");
+
+  if (remote == null) return;
+  remote.emit("hide-timer-button", false);
+}
 
 // setup web interface client bindings
 function setupInterfaceSocket(socket) {
@@ -22,11 +78,13 @@ function setupInterfaceSocket(socket) {
   webInterface = socket;
   console.log("web-interface connected...");
 
-  // send current server IP address and input mode
+  // send current server IP address and input modes
   const displayIP = remote === null ? addr : null;
   socket.emit("display-ip", displayIP);
   socket.emit("set-mode", singleInputMode);
   socket.emit("set-absolute", absolutePositioning);
+  socket.emit("set-suggestions", textSuggestions);
+  webInterface.emit("set-participant", participantId);
 
   // unassign interface client on disconnect
   socket.on("disconnect", function () {
@@ -50,6 +108,23 @@ function setupInterfaceSocket(socket) {
 
     if (remote === null) return;
     remote.emit("set-absolute", absolutePositioning);
+  });
+
+  // listen for text suggestion change events
+  socket.on("set-suggestions", function(suggestionsEnabled) {
+    textSuggestions = suggestionsEnabled;
+    webInterface.emit("set-suggestions", textSuggestions);
+  })
+
+  // listen for enter pressed to end current session
+  socket.on("enter-pressed", function(input, charsEntered, autosuggest) {
+    handleSessionEnd(input, charsEntered, autosuggest);
+  });
+
+  // listen for "set-participant" events to set session variables
+  socket.on("set-participant", function(participant) {
+    participantId = participant;
+    webInterface.emit("set-participant", participantId);
   });
 }
 
@@ -81,21 +156,34 @@ function setupRemoteSocket(socket) {
   socket.on("cursor-move", function (left, x, y) {
     if (webInterface === null) return;
     webInterface.emit("cursor-move", left, x, y);
+    handleSessionStart();
   });
 
   socket.on("cursor-set", function (left, x, y) {
     if (webInterface === null) return;
     webInterface.emit("cursor-set", left, x, y);
+    handleSessionStart();
   });
 
   socket.on("activate", function (left) {
     if (webInterface === null) return;
     webInterface.emit("activate", left);
+    handleSessionStart();
   });
 
   socket.on("click", function (left) {
     if (webInterface === null) return;
     webInterface.emit("click", left);
+    handleSessionStart();
+  });
+
+  // listen for session information
+  socket.on("start-session", function() {
+    inSession = true;
+    remote.emit("hide-timer-button", true);
+
+    if (webInterface == null) return;
+    webInterface.emit("reset-input");
   });
 }
 
