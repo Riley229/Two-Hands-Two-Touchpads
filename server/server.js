@@ -44,17 +44,10 @@ function handleSessionEnd(word, charsEntered, usedSuggestion) {
   inSession = false;
   sessionStart = null;
 
-  // TODO: write to csv file
-  //  - filename: "Participant_Data.csv"
-  //  - if file doesn't exist, write header row: "Participant Id,Input Mode,Suggestions Enabled,Text Input,Chars Entered (With Errors),Used Suggestion,Time Taken (ms)"
-  console.log(`${participantId},${singleInputMode ? "Single-cursor" : "Dual-cursor"},${textSuggestions ? "Enabled" : "Disabled"},${word},${charsEntered},${usedSuggestion ? "Yes" : "No"},${delta}`);
-
   // Check if the file exists
-  const filePath = '../Participant_Data.csv';
   const fileExists = fs.existsSync(filePath);
-  if (!fileExists) {
+  if (!fileExists)
     fs.writeFileSync(filePath, csvHeader);
-  }
 
   // Append the data to the CSV file
   fs.appendFile(filePath, formatAsCSVRow(word, charsEntered, usedSuggestion, delta), (err) => {
