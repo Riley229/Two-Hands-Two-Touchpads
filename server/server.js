@@ -23,6 +23,15 @@ var inSession = false;
 var sessionStart = null;
 var participantId = null;
 
+// file variables
+const filePath = '../Participant_Data.csv';
+const csvHeader = 'Participant Id,Input Mode,Suggestions Enabled,Text Input,Chars Entered (With Errors),Used Suggestion,Time Taken (ms)\n';
+
+// formats session data as a CSV row
+function formatAsCSVRow(word, charsEntered, usedSuggestion, delta) {
+  return `${participantId}, ${singleInputMode ? "Single-cursor" : "Dual-cursor"}, ${textSuggestions ? "Enabled" : "Disabled"}, ${word}, ${charsEntered}, ${usedSuggestion ? "Yes" : "No"}, ${delta}\n`;
+}
+
 // runs to end session timer and write info to file
 function handleSessionStart() {
   if (inSession && sessionStart == null)
@@ -38,25 +47,17 @@ function handleSessionEnd(word, charsEntered, usedSuggestion) {
   // TODO: write to csv file
   //  - filename: "Participant_Data.csv"
   //  - if file doesn't exist, write header row: "Participant Id,Input Mode,Suggestions Enabled,Text Input,Chars Entered (With Errors),Used Suggestion,Time Taken (ms)"
-  console.log(`${participantId}, ${singleInputMode ? "Single-cursor" : "Dual-cursor"}, ${textSuggestions ? "Enabled" : "Disabled"}, ${word}, ${charsEntered}, ${usedSuggestion ? "Yes" : "No"}, ${delta}`);
-  
-  // CSV header row
-  const header = 'participant ID, input mode, auto suggestions enabled, text input, chars entered, text suggestion used, time taken\n';
-
-  // Create a function to format the data as a CSV row
-  function formatAsCSVRow() {
-    return `${participantId}, ${singleInputMode ? "Single-cursor" : "Dual-cursor"}, ${textSuggestions ? "Enabled" : "Disabled"}, ${word}, ${charsEntered}, ${usedSuggestion ? "Yes" : "No"}, ${delta}\n`;
-  }
+  console.log(`${participantId},${singleInputMode ? "Single-cursor" : "Dual-cursor"},${textSuggestions ? "Enabled" : "Disabled"},${word},${charsEntered},${usedSuggestion ? "Yes" : "No"},${delta}`);
 
   // Check if the file exists
   const filePath = '../Participant_Data.csv';
   const fileExists = fs.existsSync(filePath);
   if (!fileExists) {
-    fs.writeFileSync(filePath, header);
+    fs.writeFileSync(filePath, csvHeader);
   }
 
   // Append the data to the CSV file
-  fs.appendFile(filePath, formatAsCSVRow(), (err) => {
+  fs.appendFile(filePath, formatAsCSVRow(word, charsEntered, usedSuggestion, delta), (err) => {
     if (err) {
       console.error('Error writing to the CSV file:', err);
     } else {

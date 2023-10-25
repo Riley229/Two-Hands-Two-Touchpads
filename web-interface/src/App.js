@@ -4,7 +4,7 @@ import Switch from "react-switch";
 import Popup from "reactjs-popup";
 import { io } from "socket.io-client";
 import Keyboard from "./components/Keyboard";
-import GetSearchSuggestions from "./data/GetSearchSuggestions";
+import { GetSearchSuggestions, LoadSearchData } from "./data/GetSearchSuggestions";
 
 // setup websocket
 const socket = io("http://localhost:10942", {
@@ -40,6 +40,8 @@ class App extends React.Component {
       singleInputMode: true,
       textSuggestions: false,
       absolutePositioning: false,
+      generatedTextSuggestions: [],
+      suggestionDataLoaded: false,
     };
 
     // setup webhook listeners
@@ -77,7 +79,14 @@ class App extends React.Component {
     socket.on("reset-input", function() {
       self.setState({
         input: "",
-        charsEntered: 0.
+        charsEntered: 0,
+      });
+    });
+
+    // start loading and parsing search data
+    LoadSearchData(() => {
+      this.setState({
+        suggestionDataLoaded: true,
       });
     });
   }
@@ -160,6 +169,14 @@ class App extends React.Component {
     });
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.input !== prevState.input) {
+      this.setState({
+        generatedTextSuggestions: GetSearchSuggestions(this.state.input),
+      });
+    }
+  }
+
   render() {
     const {
       input,
@@ -170,11 +187,8 @@ class App extends React.Component {
       participantId,
       menuOpen,
       absolutePositioning,
+      suggestionDataLoaded,
     } = this.state;
-
-    var generatedTextSuggestions = [];
-    if (textSuggestions)
-      generatedTextSuggestions = GetSearchSuggestions(input);
 
     return (
       <div>
@@ -190,7 +204,9 @@ class App extends React.Component {
             socket={socket}
             singleInputMode={singleInputMode}
             textSuggestionsEnabled={textSuggestions}
-            textSuggestions={generatedTextSuggestions}
+            textSuggestions={
+              textSuggestions && this.state.generatedTextSuggestions
+            }
             absolute={absolutePositioning}
             moveCursor={this.moveCursor}
             placeCharacter={this.placeCharacter}
@@ -199,7 +215,14 @@ class App extends React.Component {
             enterPressed={this.enterPressed}
           />
 
-          <Popup open={displayAddress != null} closeOnDocumentClick={false}>
+          <Popup open={!suggestionDataLoaded} closeOnDocumentClick={false}>
+            <div>
+              <h5>Pre-loading text-suggestions...</h5>
+              <h3>Please Wait</h3>
+            </div>
+          </Popup>
+
+          <Popup open={suggestionDataLoaded && displayAddress != null} closeOnDocumentClick={false}>
             <div>
               <h5>Connect a mobile device to continue</h5>
               <h3>{displayAddress}</h3>
