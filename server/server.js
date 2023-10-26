@@ -22,7 +22,7 @@ var timerEnabled = false;
 // define timer and session management variables
 var inSession = false;
 var sessionStart = null;
-var participantId = null;
+var participantId = "";
 
 // file variables
 const filePath = '../Participant_Data.csv';
@@ -30,7 +30,7 @@ const csvHeader = 'Participant Id,Input Mode,Suggestions Enabled,Text Input,Char
 
 // formats session data as a CSV row
 function formatAsCSVRow(word, charsEntered, usedSuggestion, delta) {
-  return `${participantId}, ${singleInputMode ? "Single-cursor" : "Dual-cursor"}, ${textSuggestions ? "Enabled" : "Disabled"}, ${word}, ${charsEntered}, ${usedSuggestion ? "Yes" : "No"}, ${delta}\n`;
+  return `${participantId},${singleInputMode ? "Single-cursor" : "Dual-cursor"},${textSuggestions ? "Enabled" : "Disabled"},${word},${charsEntered},${usedSuggestion ? "Yes" : "No"},${delta}\n`;
 }
 
 // runs to end session timer and write info to file
@@ -50,14 +50,17 @@ function handleSessionEnd(word, charsEntered, usedSuggestion) {
   if (!fileExists)
     fs.writeFileSync(filePath, csvHeader);
 
-  // Append the data to the CSV file
-  fs.appendFile(filePath, formatAsCSVRow(word, charsEntered, usedSuggestion, delta), (err) => {
-    if (err) {
-      console.error('Error writing to the CSV file:', err);
-    } else {
-      console.log('Data added to the CSV file successfully.');
-    }
-  });
+  // if the participant id is empty, don't write to file
+  if (participantId !== "") {
+    // Append the data to the CSV file
+    fs.appendFile(filePath, formatAsCSVRow(word, charsEntered, usedSuggestion, delta), (err) => {
+      if (err) {
+        console.error('Error writing to the CSV file:', err);
+      } else {
+        console.log('Data added to the CSV file successfully.');
+      }
+    });
+  }
 
   if (webInterface == null) return;
   webInterface.emit("cursor-reset");
