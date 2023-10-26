@@ -15,6 +15,7 @@ var webInterface = null;
 var remote = null;
 var singleInputMode = true;
 var absolutePositioning = false;
+var timerEnabled = false;
 
 // setup web interface client bindings
 function setupInterfaceSocket(socket) {
@@ -27,6 +28,7 @@ function setupInterfaceSocket(socket) {
   socket.emit("display-ip", displayIP);
   socket.emit("set-mode", singleInputMode);
   socket.emit("set-absolute", absolutePositioning);
+  socket.emit("set-timer", timerEnabled);
 
   // unassign interface client on disconnect
   socket.on("disconnect", function () {
@@ -51,6 +53,14 @@ function setupInterfaceSocket(socket) {
     if (remote === null) return;
     remote.emit("set-absolute", absolutePositioning);
   });
+
+  socket.on("set-timer", function (enabled) {
+    timerEnabled = enabled;
+    webInterface.emit("set-timer", timerEnabled);
+
+    if (remote === null) return;
+    remote.emit("");
+  })
 }
 
 // setup remote client bindings

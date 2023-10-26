@@ -38,7 +38,7 @@ function GetSearchSuggestions(input) {
     // iterate over each entry and match with keyword
     for (let i = 0; i < data[firstChar].length; i++) {
         const item = data[firstChar][i];
-        if (item.compare.startsWith(keyword))
+        if (item.compare.startsWith(keyword) && !suggestions.includes(item.title))
             suggestions.push(item.title);
 
         if (suggestions.length >= maxSuggestions)

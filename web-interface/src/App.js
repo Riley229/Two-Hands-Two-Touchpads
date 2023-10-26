@@ -25,6 +25,7 @@ class App extends React.Component {
     this.enterPressed = this.enterPressed.bind(this);
     this.toggleMode = this.toggleMode.bind(this);
     this.toggleTextSuggestions = this.toggleTextSuggestions.bind(this);
+    this.toggleTimerEnabled = this.toggleTimerEnabled.bind(this);
     this.toggleAbsolutePositioning = this.toggleAbsolutePositioning.bind(this);
     this.toggleMenu = this.toggleMenu.bind(this);
 
@@ -36,6 +37,7 @@ class App extends React.Component {
       menuOpen: false,
       singleInputMode: true,
       textSuggestions: false,
+      timerEnabled: false,
       absolutePositioning: false,
       generatedTextSuggestions: [],
       suggestionDataLoaded: false,
@@ -58,6 +60,12 @@ class App extends React.Component {
     socket.on("set-absolute", function (absolute) {
       self.setState({
         absolutePositioning: absolute,
+      });
+    });
+
+    socket.on("set-timer", function (enabled) {
+      this.setState({
+        timerEnabled: enabled,
       });
     });
 
@@ -126,6 +134,10 @@ class App extends React.Component {
     });
   }
 
+  toggleTimerEnabled(checked) {
+    socket.emit("set-timer", checked);
+  }
+
   toggleAbsolutePositioning(checked) {
     socket.emit("set-absolute", checked);
   }
@@ -154,6 +166,7 @@ class App extends React.Component {
       menuOpen,
       absolutePositioning,
       suggestionDataLoaded,
+      timerEnabled,
     } = this.state;
 
     return (
@@ -224,7 +237,19 @@ class App extends React.Component {
                 onChange={this.toggleTextSuggestions}
               />
               <text className="menu-label">Text Suggestions</text>
-            </div>{" "}
+            </div>
+            <div className="menu-option">
+              <Switch
+                className="menu-input"
+                height={20}
+                width={40}
+                checkedIcon={false}
+                uncheckedIcon={false}
+                checked={timerEnabled}
+                onChange={this.toggleTimerEnabled}
+              />
+              <text className="menu-label">Enable Timer</text>
+            </div>
             <div className="menu-option">
               <Switch
                 className="menu-input"
