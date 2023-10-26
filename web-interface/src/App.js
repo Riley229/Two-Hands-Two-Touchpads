@@ -73,7 +73,7 @@ class App extends React.Component {
     });
 
     socket.on("set-timer", function (enabled) {
-      this.setState({
+      self.setState({
         timerEnabled: enabled,
       });
     });
