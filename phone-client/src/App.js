@@ -15,7 +15,7 @@ export default function App() {
   const [touchMode, setTouchMode] = useState(true);
   const [absoluteMode, setAbsoluteMode] = useState(false);
   const [serverAddress, setServerAddress] = useState("");
-  const [displayStart, setDisplayStart] = useState(true);
+  const [displayStart, setDisplayStart] = useState(false);
   const [socket, setSocket] = useState(null);
 
   const singleHorizontalMultiplier = 150;
