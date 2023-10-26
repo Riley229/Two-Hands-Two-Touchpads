@@ -87,6 +87,7 @@ class App extends React.Component {
     socket.on("reset-input", function() {
       self.setState({
         input: "",
+        cursorIndex: 0,
         charsEntered: 0,
       });
     });
@@ -208,7 +209,7 @@ class App extends React.Component {
         <div className="main">
           <div>
             <div className="input-area">
-              <text className="input-text">{input.substring(0, cursorIndex)}</text>
+              <text className="input-text">{input.substring(0, cursorIndex).replace(/ /g, "\u00A0")}</text>
               <div className="text-cursor" />
               <text className="input-text">{input.substring(cursorIndex)}</text>
             </div>
