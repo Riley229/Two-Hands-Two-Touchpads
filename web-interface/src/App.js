@@ -27,13 +27,16 @@ class App extends React.Component {
     this.toggleTextSuggestions = this.toggleTextSuggestions.bind(this);
     this.toggleTimerEnabled = this.toggleTimerEnabled.bind(this);
     this.toggleAbsolutePositioning = this.toggleAbsolutePositioning.bind(this);
+    this.setParticipant = this.setParticipant.bind(this);
     this.toggleMenu = this.toggleMenu.bind(this);
 
     // set initial state
     this.state = {
       input: "",
       cursorIndex: 0,
+      charsEntered: 0,
       displayAddress: null,
+      participantId: null,
       menuOpen: false,
       singleInputMode: true,
       textSuggestions: false,
@@ -63,9 +66,28 @@ class App extends React.Component {
       });
     });
 
+    socket.on("set-suggestions", function(suggestionsEnabled) {
+      self.setState({
+        textSuggestions: suggestionsEnabled,
+      });
+    });
+
     socket.on("set-timer", function (enabled) {
       this.setState({
         timerEnabled: enabled,
+      });
+    });
+
+    socket.on("set-participant", function(participant) {
+      self.setState({
+        participantId: participant,
+      });
+    });
+
+    socket.on("reset-input", function() {
+      self.setState({
+        input: "",
+        charsEntered: 0,
       });
     });
 
@@ -88,13 +110,14 @@ class App extends React.Component {
   }
 
   placeCharacter(char) {
-    const { input, cursorIndex } = this.state;
+    const { input, cursorIndex, charsEntered } = this.state;
     const prefix = input.slice(0, cursorIndex);
     const suffix = input.slice(cursorIndex);
 
     this.setState({
       input: prefix + char + suffix,
       cursorIndex: cursorIndex + 1,
+      charsEntered: charsEntered + 1,
     });
   }
 
@@ -117,11 +140,17 @@ class App extends React.Component {
       cursorIndex: value.length,
     });
 
-    this.enterPressed();
+    this.enterPressed(value, true);
   }
 
-  enterPressed() {
-    // TODO: implement
+  enterPressed(value, autosuggest) {
+    const { input, charsEntered } = this.state;
+
+    autosuggest = autosuggest ?? false;
+    value = value ?? input;
+    const actualCharsEntered = autosuggest ? (charsEntered + (value.length - input.length)) : charsEntered;
+
+    socket.emit("enter-pressed", value, actualCharsEntered, autosuggest);
   }
 
   toggleMode(checked) {
@@ -129,9 +158,7 @@ class App extends React.Component {
   }
 
   toggleTextSuggestions(checked) {
-    this.setState({
-      textSuggestions: checked,
-    });
+    socket.emit("set-suggestions", checked);
   }
 
   toggleTimerEnabled(checked) {
@@ -140,6 +167,11 @@ class App extends React.Component {
 
   toggleAbsolutePositioning(checked) {
     socket.emit("set-absolute", checked);
+  }
+
+  setParticipant() {
+    const { participantId } = this.state;
+    socket.emit("set-participant", participantId);
   }
 
   toggleMenu() {
@@ -160,9 +192,11 @@ class App extends React.Component {
   render() {
     const {
       input,
+      cursorIndex,
       displayAddress,
       singleInputMode,
       textSuggestions,
+      participantId,
       menuOpen,
       absolutePositioning,
       suggestionDataLoaded,
@@ -173,8 +207,10 @@ class App extends React.Component {
       <div>
         <div className="main">
           <div>
-            <div className="inputArea">
-              <text className="inputText">{input}</text>
+            <div className="input-area">
+              <text className="input-text">{input.substring(0, cursorIndex)}</text>
+              <div className="text-cursor" />
+              <text className="input-text">{input.substring(cursorIndex)}</text>
             </div>
           </div>
           <Keyboard
@@ -261,6 +297,21 @@ class App extends React.Component {
                 onChange={this.toggleAbsolutePositioning}
               />
               <text className="menu-label">Absolute Positioning</text>
+            </div>
+            <div className="menu-option" />
+            <div className="menu-option" />
+            <div className="menu-option">
+              <input
+                className="participant-field"
+                type="text" 
+                value={participantId}
+                onInput={(event) => {
+                  this.setState({
+                    participantId: event.target.value,
+                  });
+                }}
+              />
+              <button className="participant-set" onClick={this.setParticipant}>Set Participant</button>
             </div>
           </div>
         )}

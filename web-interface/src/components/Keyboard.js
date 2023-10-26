@@ -17,7 +17,23 @@ import SuggestionButton from "./SuggestionButton";
 
 class Keyboard extends React.Component {
   static simplifiedLayout = true;
-  static numKeyRows = 5;
+  static defaultCursorStates = {
+    // x and y and [0, 100] distance from topleft corner of keyboard
+    leftCursor: {
+      x: 31.5,
+      y: 55.0,
+      click: false,
+      visible: false,
+    },
+
+    // x and y and [0, 100] distance from topleft corner of keyboard
+    rightCursor: {
+      x: 68.5,
+      y: 55.0,
+      click: false,
+      visible: false,
+    },
+  }
 
   constructor(props) {
     super(props);
@@ -35,22 +51,8 @@ class Keyboard extends React.Component {
     this.state = {
       uppercase: false,
       capsLock: false,
-
-      // x and y and [0, 100] distance from topleft corner of keyboard
-      leftCursor: {
-        x: 9.0,
-        y: 30.0,
-        click: false,
-        visible: false,
-      },
-
-      // x and y and [0, 100] distance from topleft corner of keyboard
-      rightCursor: {
-        x: 91.0,
-        y: 30.0,
-        click: false,
-        visible: false,
-      },
+      leftCursor: Keyboard.defaultCursorStates.leftCursor,
+      rightCursor: Keyboard.defaultCursorStates.rightCursor,
     };
 
     // setup suggestions ref list
@@ -113,6 +115,13 @@ class Keyboard extends React.Component {
           },
         });
       }
+    });
+
+    socket.on("cursor-reset", function () {
+      self.setState({
+        leftCursor: Keyboard.defaultCursorStates.leftCursor,
+        rightCursor: Keyboard.defaultCursorStates.rightCursor,
+      });
     });
 
     socket.on("click", (left) => {
