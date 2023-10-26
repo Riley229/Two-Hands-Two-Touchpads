@@ -115,9 +115,10 @@ function setupInterfaceSocket(socket) {
   socket.on("set-timer", function (enabled) {
     timerEnabled = enabled;
     webInterface.emit("set-timer", timerEnabled);
+    webInterface.emit("cursor-reset");
 
     if (remote === null) return;
-    remote.emit("hide-timer-button", true);
+    remote.emit("hide-timer-button", !timerEnabled);
   });
 
   // listen for "set-participant" events to set session variables
