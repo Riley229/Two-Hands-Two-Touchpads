@@ -281,10 +281,10 @@ class App extends React.Component {
                 width={40}
                 checkedIcon={false}
                 uncheckedIcon={false}
-                checked={timerEnabled}
-                onChange={this.toggleTimerEnabled}
+                checked={absolutePositioning}
+                onChange={this.toggleAbsolutePositioning}
               />
-              <text className="menu-label">Enable Timer</text>
+              <text className="menu-label">Absolute Positioning</text>
             </div>
             <div className="menu-option">
               <Switch
@@ -293,10 +293,10 @@ class App extends React.Component {
                 width={40}
                 checkedIcon={false}
                 uncheckedIcon={false}
-                checked={absolutePositioning}
-                onChange={this.toggleAbsolutePositioning}
+                checked={timerEnabled}
+                onChange={this.toggleTimerEnabled}
               />
-              <text className="menu-label">Absolute Positioning</text>
+              <text className="menu-label">Timer</text>
             </div>
             <div className="menu-option" />
             <div className="menu-option" />
