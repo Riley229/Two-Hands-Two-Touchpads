@@ -211,7 +211,7 @@ class App extends React.Component {
             <div className="input-area">
               <text className="input-text">{input.substring(0, cursorIndex).replace(/ /g, "\u00A0")}</text>
               <div className="text-cursor" />
-              <text className="input-text">{input.substring(cursorIndex)}</text>
+              <text className="input-text">{input.substring(cursorIndex).replace(/ /g, "\u00A0")}</text>
             </div>
           </div>
           <Keyboard
