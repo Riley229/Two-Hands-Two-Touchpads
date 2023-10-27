@@ -37,6 +37,8 @@ function GetSearchSuggestions(input) {
         return [];
 
     const firstChar = keyword.substring(0, 1).toLowerCase();
+    if (data[firstChar] === undefined)
+        return [];
 
     // iterate over each entry and match with keyword
     for (let i = 0; i < data[firstChar].length; i++) {
